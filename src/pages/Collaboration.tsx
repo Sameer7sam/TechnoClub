@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,7 +65,6 @@ interface Discussion {
   avatar: string;
 }
 
-// Sample data
 const sampleEvents: Event[] = [
   {
     id: '1',
@@ -200,7 +198,6 @@ const sampleEvents: Event[] = [
   },
 ];
 
-// Status badge component
 const StatusBadge: React.FC<{ status: 'planning' | 'ongoing' | 'completed' }> = ({ status }) => {
   const classes = {
     planning: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -254,26 +251,37 @@ const Collaboration: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+        <div className="absolute top-0 left-0 w-full h-full opacity-70">
+          <div className="absolute top-10 left-1/4 w-64 h-64 rounded-full bg-blue-400/10 blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-purple-400/10 blur-3xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '8s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-indigo-400/10 blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '10s' }}></div>
+        </div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.015]"></div>
+      </div>
+      
       <Navbar />
       
-      <main className="flex-grow bg-gray-50 py-12">
+      <main className="flex-grow py-12 relative z-10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Event Collaboration Hub</h1>
+            <div className="inline-flex items-center px-3 py-1.5 mb-4 rounded-full border-2 border-indigo-100 bg-white/50 backdrop-blur-sm shadow-sm">
+              <span className="text-sm font-medium text-indigo-700">Collaboration Space</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-transparent bg-clip-text">Event Collaboration Hub</h1>
             <p className="text-gray-600 max-w-3xl mx-auto">
               Plan, organize, and execute successful events together with your club members.
             </p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* Sidebar - Event List */}
             <div className="lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Club Events</h2>
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">Club Events</h2>
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button size="sm">
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
                       <CalendarPlus className="h-4 w-4 mr-2" />
                       New Event
                     </Button>
@@ -329,7 +337,7 @@ const Collaboration: React.FC = () => {
                 {events.map((event) => (
                   <Card 
                     key={event.id} 
-                    className={`cursor-pointer hover:shadow-md transition-shadow ${selectedEvent?.id === event.id ? 'ring-2 ring-primary' : ''}`}
+                    className={`cursor-pointer hover:shadow-md transition-shadow backdrop-blur-sm bg-white/70 border-opacity-30 hover:bg-white/90 ${selectedEvent?.id === event.id ? 'ring-2 ring-indigo-500' : ''}`}
                     onClick={() => setSelectedEvent(event)}
                   >
                     <CardHeader className="pb-3">
@@ -364,11 +372,10 @@ const Collaboration: React.FC = () => {
               </div>
             </div>
             
-            {/* Main Content - Event Details */}
             <div className="lg:col-span-3">
               {selectedEvent ? (
                 <div className="space-y-6">
-                  <Card>
+                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
@@ -390,8 +397,7 @@ const Collaboration: React.FC = () => {
                     </CardContent>
                   </Card>
                   
-                  {/* Teams */}
-                  <Card>
+                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
                     <Collapsible>
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="py-4">
@@ -436,8 +442,7 @@ const Collaboration: React.FC = () => {
                     </Collapsible>
                   </Card>
                   
-                  {/* Tasks */}
-                  <Card>
+                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
                     <Collapsible>
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="py-4">
@@ -501,8 +506,7 @@ const Collaboration: React.FC = () => {
                     </Collapsible>
                   </Card>
                   
-                  {/* Discussion */}
-                  <Card>
+                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
                     <CardHeader>
                       <div className="flex items-center">
                         <MessageSquare className="mr-2 h-5 w-5 text-gray-500" />
@@ -546,7 +550,7 @@ const Collaboration: React.FC = () => {
                   </Card>
                 </div>
               ) : (
-                <Card className="flex items-center justify-center h-96">
+                <Card className="flex items-center justify-center h-96 backdrop-blur-sm bg-white/70 border-opacity-30">
                   <CardContent className="text-center p-6">
                     <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <CardTitle className="text-xl mb-2">No Event Selected</CardTitle>
