@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,9 +32,8 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
-import { UserPlus, GraduationCap, BuildingCommunity } from 'lucide-react';
+import { UserPlus, GraduationCap, Building } from 'lucide-react';
 
-// Define form schema with Zod
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -73,7 +71,6 @@ const Membership: React.FC = () => {
     form.reset();
   }
 
-  // Sample data for clubs and chapters
   const clubs = ["IEEE", "ACM", "AWS", "GDG", "STIC"];
   const chapters = {
     "IEEE": ["Computer Society", "Signal Processing", "Robotics & Automation", "Women in Engineering"],
@@ -122,7 +119,7 @@ const Membership: React.FC = () => {
             
             <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100">
               <CardHeader className="pb-2">
-                <BuildingCommunity className="h-8 w-8 text-amber-500 mb-2" />
+                <Building className="h-8 w-8 text-amber-500 mb-2" />
                 <CardTitle>Build Experience</CardTitle>
               </CardHeader>
               <CardContent>
