@@ -119,7 +119,7 @@ const sampleEvents: Event[] = [
       {
         id: 'd1',
         user: 'Alex Johnson',
-        message: 'I've contacted the university about using the main hall. They need a formal request letter.',
+        message: "I've contacted the university about using the main hall. They need a formal request letter.",
         timestamp: '2024-03-10T14:32:00',
         avatar: '',
       },
@@ -133,7 +133,7 @@ const sampleEvents: Event[] = [
       {
         id: 'd3',
         user: 'Jamie Smith',
-        message: 'We'll need to ensure we have reliable Wi-Fi for at least 100 participants. I'll check with IT.',
+        message: "We'll need to ensure we have reliable Wi-Fi for at least 100 participants. I'll check with IT.",
         timestamp: '2024-03-12T11:20:00',
         avatar: '',
       },
@@ -192,7 +192,7 @@ const sampleEvents: Event[] = [
       {
         id: 'd2',
         user: 'Michael Brown',
-        message: 'I've created some flyer designs. Will share them for feedback soon.',
+        message: "I've created some flyer designs. Will share them for feedback soon.",
         timestamp: '2024-03-07T15:30:00',
         avatar: '',
       },
