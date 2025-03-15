@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
@@ -6,6 +5,7 @@ import Features from '@/components/Features';
 import Problem from '@/components/Problem';
 import Benefits from '@/components/Benefits';
 import Footer from '@/components/Footer';
+import Slideshow from '@/components/Slideshow';
 
 const Index: React.FC = () => {
   // Handle smooth scrolling for anchor links
@@ -70,6 +70,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen">
       <Navbar />
       <Hero />
+      <Slideshow />
       <Problem />
       <Features />
       <Benefits />
