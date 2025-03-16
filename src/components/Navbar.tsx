@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Users, Calendar, Award, UserPlus } from 'lucide-react';
+import { Menu, X, Users, Calendar, Award, UserPlus, Moon, Star, Rocket } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', path: '/', icon: <Calendar className="h-4 w-4 mr-2" /> },
+    { name: 'Home', path: '/', icon: <Rocket className="h-4 w-4 mr-2" /> },
     { name: 'Membership', path: '/membership', icon: <UserPlus className="h-4 w-4 mr-2" /> },
     { name: 'Collaboration', path: '/collaboration', icon: <Users className="h-4 w-4 mr-2" /> },
     { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" /> },
@@ -33,27 +33,18 @@ const Navbar: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+        isScrolled ? 'glass-dark py-2 backdrop-blur-lg' : 'bg-transparent py-4'
       }`}
     >
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full p-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full p-2">
+              <Moon
                 className="h-6 w-6"
-              >
-                <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-              </svg>
+              />
             </span>
-            <span className="font-bold text-xl text-gray-900">TechnoClubs</span>
+            <span className="font-bold text-xl text-gray-100">TechnoClubs</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-1">
@@ -61,10 +52,15 @@ const Navbar: React.FC = () => {
               <Link key={link.path} to={link.path}>
                 <Button
                   variant={location.pathname === link.path ? "default" : "ghost"}
-                  className="relative px-3"
+                  className={`relative px-3 ${
+                    location.pathname === link.path ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'text-gray-200 hover:text-white hover:bg-white/10'
+                  }`}
                 >
                   {link.icon}
                   {link.name}
+                  {location.pathname === link.path && (
+                    <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-primary rounded-full"></span>
+                  )}
                 </Button>
               </Link>
             ))}
@@ -72,21 +68,24 @@ const Navbar: React.FC = () => {
 
           <div className="flex items-center space-x-3">
             <Link to="/membership">
-              <Button className="hidden md:flex button-shine">Join Now</Button>
+              <Button className="hidden md:flex button-shine bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0 text-white">
+                <Star className="w-4 h-4 mr-2" />
+                Join Now
+              </Button>
             </Link>
 
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-gray-200 hover:text-white hover:bg-white/10">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[270px] sm:w-[300px]">
+              <SheetContent side="right" className="glass-dark border-slate-800 w-[270px] sm:w-[300px]">
                 <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between pb-6 border-b border-gray-100">
-                    <span className="font-bold text-xl">Menu</span>
-                    <Button variant="ghost" size="icon" onClick={closeMenu}>
+                  <div className="flex items-center justify-between pb-6 border-b border-slate-800">
+                    <span className="font-bold text-xl text-gray-100">Menu</span>
+                    <Button variant="ghost" size="icon" onClick={closeMenu} className="text-gray-400 hover:text-white hover:bg-white/10">
                       <X className="h-5 w-5" />
                       <span className="sr-only">Close menu</span>
                     </Button>
@@ -97,7 +96,9 @@ const Navbar: React.FC = () => {
                       <Link key={link.path} to={link.path} onClick={closeMenu}>
                         <Button
                           variant={location.pathname === link.path ? "default" : "ghost"}
-                          className="w-full justify-start"
+                          className={`w-full justify-start ${
+                            location.pathname === link.path ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'text-gray-200 hover:text-white hover:bg-white/10'
+                          }`}
                         >
                           {link.icon}
                           {link.name}
@@ -106,9 +107,12 @@ const Navbar: React.FC = () => {
                     ))}
                   </nav>
 
-                  <div className="mt-auto pt-6 border-t border-gray-100">
+                  <div className="mt-auto pt-6 border-t border-slate-800">
                     <Link to="/membership" onClick={closeMenu}>
-                      <Button className="w-full">Join Now</Button>
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0">
+                        <Star className="w-4 h-4 mr-2" />
+                        Join Now
+                      </Button>
                     </Link>
                   </div>
                 </div>
