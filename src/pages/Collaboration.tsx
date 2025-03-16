@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,7 @@ import {
 } from '@/components/ui/collapsible';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CalendarPlus, Users, MessageSquare, FileText, ChevronDown, Plus, Calendar } from 'lucide-react';
+import { CalendarPlus, Users, MessageSquare, FileText, ChevronDown, Plus, Calendar, Sparkles } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Avatar } from '@/components/ui/avatar';
@@ -200,9 +201,9 @@ const sampleEvents: Event[] = [
 
 const StatusBadge: React.FC<{ status: 'planning' | 'ongoing' | 'completed' }> = ({ status }) => {
   const classes = {
-    planning: 'bg-amber-100 text-amber-800 border-amber-200',
-    ongoing: 'bg-blue-100 text-blue-800 border-blue-200',
-    completed: 'bg-green-100 text-green-800 border-green-200',
+    planning: 'bg-amber-900/40 text-amber-300 border-amber-500/30',
+    ongoing: 'bg-blue-900/40 text-blue-300 border-blue-500/30',
+    completed: 'bg-green-900/40 text-green-300 border-green-500/30',
   };
   
   const labels = {
@@ -251,14 +252,16 @@ const Collaboration: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-        <div className="absolute top-0 left-0 w-full h-full opacity-70">
-          <div className="absolute top-10 left-1/4 w-64 h-64 rounded-full bg-blue-400/10 blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-purple-400/10 blur-3xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '8s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-indigo-400/10 blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '10s' }}></div>
-        </div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.015]"></div>
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-space-black">
+      {/* Cosmic background with animated elements */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-space-black via-space-deepBlue to-space-navy opacity-90"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_20%,rgba(150,80,255,0.15),transparent)]"></div>
+        <div className="absolute inset-0 stars-bg opacity-30"></div>
+        <div className="absolute top-1/4 left-1/3 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-pink-500/10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[30rem] h-[30rem] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
       </div>
       
       <Navbar />
@@ -266,11 +269,12 @@ const Collaboration: React.FC = () => {
       <main className="flex-grow py-12 relative z-10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center px-3 py-1.5 mb-4 rounded-full border-2 border-indigo-100 bg-white/50 backdrop-blur-sm shadow-sm">
-              <span className="text-sm font-medium text-indigo-700">Collaboration Space</span>
+            <div className="inline-flex items-center px-3 py-1.5 mb-4 rounded-full border border-purple-500/30 bg-purple-500/10 backdrop-blur-sm neo-border">
+              <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
+              <span className="text-sm font-medium text-purple-300">Collaboration Space</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-transparent bg-clip-text">Event Collaboration Hub</h1>
-            <p className="text-gray-600 max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">Event Collaboration Hub</h1>
+            <p className="text-gray-400 max-w-3xl mx-auto">
               Plan, organize, and execute successful events together with your club members.
             </p>
           </div>
@@ -278,56 +282,56 @@ const Collaboration: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">Club Events</h2>
+                <h2 className="text-xl font-semibold text-gradient">Club Events</h2>
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border border-purple-400/20">
                       <CalendarPlus className="h-4 w-4 mr-2" />
                       New Event
                     </Button>
                   </SheetTrigger>
-                  <SheetContent>
+                  <SheetContent className="bg-space-navy border-l border-purple-500/20">
                     <SheetHeader>
-                      <SheetTitle>Create New Event</SheetTitle>
-                      <SheetDescription>
+                      <SheetTitle className="text-white">Create New Event</SheetTitle>
+                      <SheetDescription className="text-gray-400">
                         Add the details for your new club event.
                       </SheetDescription>
                     </SheetHeader>
                     <div className="py-6 space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="event-title">Event Title</Label>
-                        <Input id="event-title" placeholder="Enter event title" />
+                        <Label htmlFor="event-title" className="text-gray-300">Event Title</Label>
+                        <Input id="event-title" placeholder="Enter event title" className="bg-space-black/50 border-purple-500/20 focus:border-purple-500/50" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="event-date">Event Date</Label>
-                        <Input id="event-date" type="date" />
+                        <Label htmlFor="event-date" className="text-gray-300">Event Date</Label>
+                        <Input id="event-date" type="date" className="bg-space-black/50 border-purple-500/20 focus:border-purple-500/50" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="event-club">Club</Label>
-                        <Input id="event-club" placeholder="Enter club name" />
+                        <Label htmlFor="event-club" className="text-gray-300">Club</Label>
+                        <Input id="event-club" placeholder="Enter club name" className="bg-space-black/50 border-purple-500/20 focus:border-purple-500/50" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="event-description">Description</Label>
-                        <Textarea id="event-description" placeholder="Enter event description" className="min-h-[100px]" />
+                        <Label htmlFor="event-description" className="text-gray-300">Description</Label>
+                        <Textarea id="event-description" placeholder="Enter event description" className="min-h-[100px] bg-space-black/50 border-purple-500/20 focus:border-purple-500/50" />
                       </div>
                       <div className="space-y-2">
-                        <Label>Event Status</Label>
+                        <Label className="text-gray-300">Event Status</Label>
                         <RadioGroup defaultValue="planning">
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="planning" id="planning" />
-                            <Label htmlFor="planning">Planning</Label>
+                            <Label htmlFor="planning" className="text-gray-300">Planning</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="ongoing" id="ongoing" />
-                            <Label htmlFor="ongoing">Ongoing</Label>
+                            <Label htmlFor="ongoing" className="text-gray-300">Ongoing</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="completed" id="completed" />
-                            <Label htmlFor="completed">Completed</Label>
+                            <Label htmlFor="completed" className="text-gray-300">Completed</Label>
                           </div>
                         </RadioGroup>
                       </div>
-                      <Button className="w-full">Create Event</Button>
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">Create Event</Button>
                     </div>
                   </SheetContent>
                 </Sheet>
@@ -337,16 +341,18 @@ const Collaboration: React.FC = () => {
                 {events.map((event) => (
                   <Card 
                     key={event.id} 
-                    className={`cursor-pointer hover:shadow-md transition-shadow backdrop-blur-sm bg-white/70 border-opacity-30 hover:bg-white/90 ${selectedEvent?.id === event.id ? 'ring-2 ring-indigo-500' : ''}`}
+                    className={`cursor-pointer hover-scale backdrop-blur-sm glass-card border-opacity-30 ${
+                      selectedEvent?.id === event.id ? 'ring-2 ring-purple-500/50 neo-border' : 'border-purple-500/10'
+                    }`}
                     onClick={() => setSelectedEvent(event)}
                   >
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg">{event.title}</CardTitle>
+                        <CardTitle className="text-lg text-white">{event.title}</CardTitle>
                         <StatusBadge status={event.status} />
                       </div>
-                      <CardDescription className="flex items-center mt-1">
-                        <Calendar className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
+                      <CardDescription className="flex items-center mt-1 text-gray-400">
+                        <Calendar className="h-3.5 w-3.5 mr-1.5" />
                         {new Date(event.date).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -355,8 +361,8 @@ const Collaboration: React.FC = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 line-clamp-2">{event.description}</p>
-                      <div className="mt-3 text-xs text-gray-500">
+                      <p className="text-sm text-gray-300 line-clamp-2">{event.description}</p>
+                      <div className="mt-3 text-xs text-gray-400">
                         <div className="flex items-center">
                           <Users className="h-3.5 w-3.5 mr-1" />
                           {event.teams.reduce((acc, team) => acc + team.members.length, 0)} Members
@@ -375,12 +381,12 @@ const Collaboration: React.FC = () => {
             <div className="lg:col-span-3">
               {selectedEvent ? (
                 <div className="space-y-6">
-                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
+                  <Card className="glass-card border-purple-500/20 cosmic-glow">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-2xl">{selectedEvent.title}</CardTitle>
-                          <CardDescription className="mt-1">
+                          <CardTitle className="text-2xl text-gradient">{selectedEvent.title}</CardTitle>
+                          <CardDescription className="mt-1 text-gray-400">
                             {selectedEvent.club} • {new Date(selectedEvent.date).toLocaleDateString('en-US', {
                               weekday: 'long',
                               month: 'long',
@@ -393,20 +399,20 @@ const Collaboration: React.FC = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-700">{selectedEvent.description}</p>
+                      <p className="text-gray-300">{selectedEvent.description}</p>
                     </CardContent>
                   </Card>
                   
-                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
+                  <Card className="glass-card border-purple-500/20">
                     <Collapsible>
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="py-4">
                           <div className="flex justify-between items-center">
                             <div className="flex items-center">
-                              <Users className="mr-2 h-5 w-5 text-gray-500" />
-                              <CardTitle className="text-lg">Teams & Members</CardTitle>
+                              <Users className="mr-2 h-5 w-5 text-purple-400" />
+                              <CardTitle className="text-lg text-white">Teams & Members</CardTitle>
                             </div>
-                            <ChevronDown className="h-5 w-5 text-gray-500" />
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
                           </div>
                         </CardHeader>
                       </CollapsibleTrigger>
@@ -414,25 +420,25 @@ const Collaboration: React.FC = () => {
                         <CardContent className="pt-0">
                           <div className="space-y-4">
                             {selectedEvent.teams.map((team) => (
-                              <div key={team.id} className="border rounded-lg p-4">
-                                <h4 className="font-medium text-base mb-2">{team.name}</h4>
+                              <div key={team.id} className="border border-purple-500/20 rounded-lg p-4 bg-space-navy/30">
+                                <h4 className="font-medium text-base mb-2 text-purple-300">{team.name}</h4>
                                 <div className="space-y-2">
                                   {team.members.map((member, index) => (
-                                    <div key={index} className="flex items-center gap-2 text-sm">
-                                      <Avatar className="h-6 w-6">
-                                        <AvatarFallback>{member.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                    <div key={index} className="flex items-center gap-2 text-sm text-gray-300">
+                                      <Avatar className="h-6 w-6 bg-space-navy border border-purple-500/30">
+                                        <AvatarFallback className="bg-purple-900/50 text-purple-200">{member.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                                       </Avatar>
                                       <span>{member}</span>
                                     </div>
                                   ))}
                                 </div>
-                                <Button variant="outline" size="sm" className="mt-3">
+                                <Button variant="outline" size="sm" className="mt-3 border-purple-500/30 text-purple-300 hover:bg-purple-500/20">
                                   <Plus className="h-3.5 w-3.5 mr-1.5" />
                                   Add Member
                                 </Button>
                               </div>
                             ))}
-                            <Button variant="outline">
+                            <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20">
                               <Plus className="h-4 w-4 mr-2" />
                               Create New Team
                             </Button>
@@ -442,16 +448,16 @@ const Collaboration: React.FC = () => {
                     </Collapsible>
                   </Card>
                   
-                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
+                  <Card className="glass-card border-purple-500/20">
                     <Collapsible>
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="py-4">
                           <div className="flex justify-between items-center">
                             <div className="flex items-center">
-                              <FileText className="mr-2 h-5 w-5 text-gray-500" />
-                              <CardTitle className="text-lg">Tasks</CardTitle>
+                              <FileText className="mr-2 h-5 w-5 text-purple-400" />
+                              <CardTitle className="text-lg text-white">Tasks</CardTitle>
                             </div>
-                            <ChevronDown className="h-5 w-5 text-gray-500" />
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
                           </div>
                         </CardHeader>
                       </CollapsibleTrigger>
@@ -462,7 +468,11 @@ const Collaboration: React.FC = () => {
                               <div 
                                 key={task.id} 
                                 className={`flex items-center justify-between p-3 rounded-lg border ${
-                                  task.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200'
+                                  task.status === 'completed' 
+                                    ? 'bg-green-900/10 border-green-500/20' 
+                                    : task.status === 'in-progress'
+                                    ? 'bg-blue-900/10 border-blue-500/20'
+                                    : 'bg-amber-900/10 border-amber-500/20'
                                 }`}
                               >
                                 <div className="flex items-start gap-3">
@@ -470,24 +480,24 @@ const Collaboration: React.FC = () => {
                                     <input 
                                       type="checkbox" 
                                       checked={task.status === 'completed'} 
-                                      className="rounded text-primary focus:ring-primary"
+                                      className="rounded text-purple-600 bg-space-navy border-purple-500/30 focus:ring-purple-500"
                                       readOnly
                                     />
                                   </div>
                                   <div>
-                                    <p className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
+                                    <p className={`font-medium text-gray-200 ${task.status === 'completed' ? 'line-through text-gray-400' : ''}`}>
                                       {task.title}
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-400">
                                       Assigned to: {task.assignee} • Due: {new Date(task.dueDate).toLocaleDateString()}
                                     </p>
                                   </div>
                                 </div>
                                 <div>
                                   <span className={`text-xs px-2.5 py-0.5 rounded-full ${
-                                    task.status === 'todo' ? 'bg-gray-100 text-gray-800' : 
-                                    task.status === 'in-progress' ? 'bg-blue-100 text-blue-800' : 
-                                    'bg-green-100 text-green-800'
+                                    task.status === 'todo' ? 'bg-amber-900/30 text-amber-300 border border-amber-500/30' : 
+                                    task.status === 'in-progress' ? 'bg-blue-900/30 text-blue-300 border border-blue-500/30' : 
+                                    'bg-green-900/30 text-green-300 border border-green-500/30'
                                   }`}>
                                     {task.status === 'todo' ? 'To Do' : 
                                      task.status === 'in-progress' ? 'In Progress' : 
@@ -496,7 +506,7 @@ const Collaboration: React.FC = () => {
                                 </div>
                               </div>
                             ))}
-                            <Button variant="outline">
+                            <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20">
                               <Plus className="h-4 w-4 mr-2" />
                               Add New Task
                             </Button>
@@ -506,28 +516,28 @@ const Collaboration: React.FC = () => {
                     </Collapsible>
                   </Card>
                   
-                  <Card className="backdrop-blur-sm bg-white/70 border-opacity-30">
+                  <Card className="glass-card border-purple-500/20">
                     <CardHeader>
                       <div className="flex items-center">
-                        <MessageSquare className="mr-2 h-5 w-5 text-gray-500" />
-                        <CardTitle className="text-lg">Discussion</CardTitle>
+                        <MessageSquare className="mr-2 h-5 w-5 text-purple-400" />
+                        <CardTitle className="text-lg text-white">Discussion</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4 mb-4">
+                      <div className="space-y-4 mb-4 max-h-[400px] overflow-y-auto scrollbar-none pr-2">
                         {selectedEvent.discussions.map((discussion) => (
                           <div key={discussion.id} className="flex gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarFallback>{discussion.user.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            <Avatar className="h-8 w-8 bg-space-navy border border-purple-500/30">
+                              <AvatarFallback className="bg-purple-900/50 text-purple-200">{discussion.user.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <div className="flex items-baseline">
-                                <p className="font-medium">{discussion.user}</p>
+                                <p className="font-medium text-purple-300">{discussion.user}</p>
                                 <span className="text-xs text-gray-500 ml-2">
                                   {new Date(discussion.timestamp).toLocaleString()}
                                 </span>
                               </div>
-                              <p className="text-gray-700 mt-1">{discussion.message}</p>
+                              <p className="text-gray-300 mt-1">{discussion.message}</p>
                             </div>
                           </div>
                         ))}
@@ -543,18 +553,19 @@ const Collaboration: React.FC = () => {
                               handleSendMessage();
                             }
                           }}
+                          className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50"
                         />
-                        <Button onClick={handleSendMessage}>Send</Button>
+                        <Button onClick={handleSendMessage} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">Send</Button>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
               ) : (
-                <Card className="flex items-center justify-center h-96 backdrop-blur-sm bg-white/70 border-opacity-30">
+                <Card className="flex items-center justify-center h-96 glass-card border-purple-500/20 cosmic-glow">
                   <CardContent className="text-center p-6">
-                    <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <CardTitle className="text-xl mb-2">No Event Selected</CardTitle>
-                    <CardDescription>
+                    <Calendar className="h-16 w-16 text-purple-500/30 mx-auto mb-4" />
+                    <CardTitle className="text-xl mb-2 text-gradient">No Event Selected</CardTitle>
+                    <CardDescription className="text-gray-400">
                       Select an event from the list or create a new one to start collaborating.
                     </CardDescription>
                   </CardContent>
