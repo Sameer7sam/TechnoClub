@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,9 +30,20 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Coins, Trophy, BadgeCheck, Award, ArrowUpRight, PiggyBank, Star, Calendar, User } from 'lucide-react';
+import { 
+  Coins, 
+  Trophy, 
+  BadgeCheck, 
+  Award, 
+  ArrowUpRight, 
+  PiggyBank, 
+  Star, 
+  Calendar, 
+  User, 
+  FileText, 
+  Building 
+} from 'lucide-react';
 
-// Sample user data for the credit system
 const userData = {
   name: "Alex Johnson",
   email: "alex.johnson@example.com",
@@ -61,7 +71,6 @@ const userData = {
   ]
 };
 
-// Activity types with icons
 const activityTypes = {
   event_organization: <Calendar className="h-4 w-4 text-green-500" />,
   participation: <User className="h-4 w-4 text-blue-500" />,
@@ -70,7 +79,6 @@ const activityTypes = {
   representation: <Building className="h-4 w-4 text-rose-500" />
 };
 
-// Create a component to show status with colors
 const RankBadge: React.FC<{ rank: string }> = ({ rank }) => {
   let colors = "bg-gray-100 text-gray-800";
   
@@ -92,16 +100,12 @@ const RankBadge: React.FC<{ rank: string }> = ({ rank }) => {
   );
 };
 
-// Form schema for logging activities
 const activityFormSchema = z.object({
   description: z.string().min(5, { message: "Description must be at least 5 characters" }),
   type: z.string({ required_error: "Please select an activity type" }),
   date: z.string({ required_error: "Please select a date" }),
   club: z.string({ required_error: "Please select a club" }),
 });
-
-// Import required icon
-import { FileText, Building } from 'lucide-react';
 
 const Credits: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'activities' | 'rewards'>('overview');
@@ -120,27 +124,31 @@ const Credits: React.FC = () => {
     form.reset();
   };
   
-  // Function to calculate the percentage for progress bars
   const calculatePercentage = (current: number, target: number) => {
     return Math.min(100, Math.round((current / target) * 100));
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-space-black">
       <Navbar />
       
-      <main className="flex-grow bg-gray-50 py-12">
+      <main className="flex-grow py-12 relative">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-1/4 right-0 w-64 h-64 bg-purple-900/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 left-0 w-72 h-72 bg-pink-900/20 rounded-full blur-3xl"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(100,65,165,0.05)_1px,transparent_1px),linear-gradient(to_right,rgba(100,65,165,0.05)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        </div>
+
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-10 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Credit System</h1>
-            <p className="text-gray-600 max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">Credit System</h1>
+            <p className="text-gray-400 max-w-3xl mx-auto">
               Track your contributions, earn credits, and redeem rewards for your active participation.
             </p>
           </div>
           
-          {/* User Overview Card */}
-          <Card className="mb-8 overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
+          <Card className="mb-8 overflow-hidden bg-space-navy/40 backdrop-blur-md border border-purple-500/20">
+            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 p-6 border-b border-purple-500/20">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div className="text-white">
                   <h2 className="text-2xl font-bold">{userData.name}</h2>
@@ -170,7 +178,7 @@ const Credits: React.FC = () => {
               </div>
             </div>
             
-            <div className="bg-white p-6 border-t border-gray-100">
+            <div className="p-6">
               <div className="flex space-x-4 overflow-x-auto pb-2">
                 <Button 
                   variant={activeTab === 'overview' ? 'default' : 'outline'} 
@@ -199,92 +207,65 @@ const Credits: React.FC = () => {
           
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Credit Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <PiggyBank className="mr-2 h-5 w-5 text-indigo-500" />
-                    Credit Distribution
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {userData.clubs.map((club, idx) => (
-                      <div key={idx}>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">{club.name}</span>
-                          <span className="text-sm text-gray-500">{club.credits} credits</span>
-                        </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-indigo-500 rounded-full transition-all duration-500"
-                            style={{ width: `${calculatePercentage(club.credits, userData.totalCredits)}%` }}
-                          ></div>
-                        </div>
+              <Card className="bg-space-navy/40 backdrop-blur-md border border-purple-500/20">
+                <div className="space-y-4">
+                  {userData.clubs.map((club, idx) => (
+                    <div key={idx}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">{club.name}</span>
+                        <span className="text-sm text-gray-500">{club.credits} credits</span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                          style={{ width: `${calculatePercentage(club.credits, userData.totalCredits)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </Card>
 
-              {/* Next Rank */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Trophy className="mr-2 h-5 w-5 text-amber-500" />
-                    Next Rank
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="mb-4">
-                      <span className="inline-block p-3 bg-amber-100 text-amber-700 rounded-full">
-                        <Star className="h-8 w-8" />
-                      </span>
-                      <h3 className="text-lg font-semibold mt-3">Club Leader</h3>
-                      <p className="text-sm text-gray-500 mt-1">50 credits needed</p>
-                    </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full">
-                      <div
-                        className="h-full bg-amber-500 rounded-full transition-all duration-500"
-                        style={{ width: '90%' }}
-                      ></div>
-                    </div>
-                    <p className="mt-3 text-sm">450 / 500 credits</p>
-                    <Button className="mt-4 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
-                      View Benefits
-                    </Button>
+              <Card className="bg-space-navy/40 backdrop-blur-md border border-purple-500/20">
+                <div className="text-center">
+                  <div className="mb-4">
+                    <span className="inline-block p-3 bg-amber-100 text-amber-700 rounded-full">
+                      <Star className="h-8 w-8" />
+                    </span>
+                    <h3 className="text-lg font-semibold mt-3">Club Leader</h3>
+                    <p className="text-sm text-gray-500 mt-1">50 credits needed</p>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Available Rewards */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Award className="mr-2 h-5 w-5 text-emerald-500" />
-                    Available Rewards
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {userData.rewards.filter(reward => !reward.redeemed).slice(0, 3).map((reward, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{reward.name}</p>
-                          <p className="text-xs text-gray-500">{reward.cost} credits</p>
-                        </div>
-                        <Button size="sm" variant="outline" className="h-8">
-                          Redeem
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="h-2.5 bg-gray-100 rounded-full">
+                    <div
+                      className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                      style={{ width: '90%' }}
+                    ></div>
                   </div>
-                  <Button variant="link" className="w-full mt-2">
-                    View All Rewards
-                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  <p className="mt-3 text-sm">450 / 500 credits</p>
+                  <Button className="mt-4 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+                    View Benefits
                   </Button>
-                </CardContent>
+                </div>
+              </Card>
+
+              <Card className="bg-space-navy/40 backdrop-blur-md border border-purple-500/20">
+                <div className="space-y-3">
+                  {userData.rewards.filter(reward => !reward.redeemed).slice(0, 3).map((reward, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{reward.name}</p>
+                        <p className="text-xs text-gray-500">{reward.cost} credits</p>
+                      </div>
+                      <Button size="sm" variant="outline" className="h-8">
+                        Redeem
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="link" className="w-full mt-2">
+                  View All Rewards
+                  <ArrowUpRight className="ml-1 h-4 w-4" />
+                </Button>
               </Card>
             </div>
           )}
