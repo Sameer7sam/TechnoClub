@@ -7,14 +7,12 @@ const Hero: React.FC = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
-  const decorationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Staggered animation for hero elements
     const titleElement = titleRef.current;
     const subtitleElement = subtitleRef.current;
     const ctaElement = ctaRef.current;
-    const decorationElement = decorationRef.current;
 
     setTimeout(() => {
       titleElement?.classList.add('opacity-100', 'translate-y-0');
@@ -27,10 +25,6 @@ const Hero: React.FC = () => {
     setTimeout(() => {
       ctaElement?.classList.add('opacity-100', 'translate-y-0');
     }, 900);
-    
-    setTimeout(() => {
-      decorationElement?.classList.add('opacity-100', 'scale-100');
-    }, 1200);
   }, []);
 
   // Generate stars for the background
@@ -61,7 +55,7 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-screen pt-32 pb-20 overflow-hidden bg-space-black">
+    <section className="relative min-h-[80vh] pt-32 pb-20 overflow-hidden bg-space-black">
       {/* Star background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         {renderStars()}
@@ -107,10 +101,10 @@ const Hero: React.FC = () => {
           </p>
           
           <div 
-            className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-20 opacity-0 translate-y-8 transition-all duration-700 ease-apple delay-300"
+            className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 opacity-0 translate-y-8 transition-all duration-700 ease-apple delay-300"
             ref={ctaRef}
           >
-            <button className="button-shine bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-md font-medium transition-all hover:shadow-neon w-full sm:w-auto flex items-center justify-center">
+            <button className="button-shine bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-md font-medium transition-all hover:shadow-neon w-full sm:w-auto flex items-center justify-center border border-purple-500/30">
               <Rocket className="w-5 h-5 mr-2" />
               Explore the Platform
             </button>
@@ -120,64 +114,6 @@ const Hero: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Decorative UI mockup */}
-      <div 
-        className="relative mx-auto max-w-5xl opacity-0 scale-95 transition-all duration-1000 ease-apple delay-500"
-        ref={decorationRef}
-      >
-        <div className="aspect-video glass-dark rounded-lg shadow-neon overflow-hidden border border-purple-500/20 p-1">
-          <div className="w-full h-full rounded-md bg-space-black/80 relative">
-            {/* Dashboard mockup */}
-            <div className="flex absolute top-0 left-0 right-0 h-10 bg-slate-800/70 items-center px-4 border-b border-purple-500/10">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              </div>
-              <div className="mx-auto h-6 w-1/3 bg-slate-700/70 rounded-full"></div>
-            </div>
-
-            <div className="pt-12 px-4 grid grid-cols-12 gap-4 h-full">
-              {/* Sidebar */}
-              <div className="col-span-3 h-full bg-slate-800/30 rounded-md p-3 border border-purple-500/10">
-                <div className="h-10 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-md shadow-sm mb-3 border border-purple-500/10"></div>
-                <div className="space-y-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div 
-                      key={i} 
-                      className={cn(
-                        "h-8 rounded-md border border-purple-500/10", 
-                        i === 1 ? "bg-primary/10" : "bg-slate-700/30"
-                      )}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Main content */}
-              <div className="col-span-9 grid grid-cols-6 gap-4">
-                {/* Header */}
-                <div className="col-span-6 h-10 bg-slate-800/50 shadow-sm rounded-md border border-purple-500/10"></div>
-                
-                {/* Stats */}
-                <div className="col-span-2 h-24 bg-gradient-to-br from-purple-600/10 to-transparent shadow-sm rounded-md border border-purple-500/10"></div>
-                <div className="col-span-2 h-24 bg-gradient-to-br from-pink-600/10 to-transparent shadow-sm rounded-md border border-purple-500/10"></div>
-                <div className="col-span-2 h-24 bg-gradient-to-br from-indigo-600/10 to-transparent shadow-sm rounded-md border border-purple-500/10"></div>
-                
-                {/* Content */}
-                <div className="col-span-4 row-span-2 bg-slate-800/30 shadow-sm rounded-md h-64 border border-purple-500/10"></div>
-                <div className="col-span-2 bg-slate-800/30 shadow-sm rounded-md h-40 border border-purple-500/10"></div>
-                <div className="col-span-2 bg-slate-800/30 shadow-sm rounded-md h-20 border border-purple-500/10"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Floating elements */}
-        <div className="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-purple-600/80 to-pink-600/80 rounded-2xl rotate-12 shadow-lg opacity-90 backdrop-blur-xl"></div>
-        <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl -rotate-12 shadow-md border border-purple-500/20 backdrop-blur-xl"></div>
       </div>
     </section>
   );

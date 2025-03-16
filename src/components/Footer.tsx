@@ -21,13 +21,13 @@ const Footer: React.FC = () => {
               Empowering multi-chapter organizations to thrive, innovate, and create impact.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Twitter className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Linkedin className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Github className="h-6 w-6" />
               </a>
             </div>
@@ -36,36 +36,36 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-semibold text-lg mb-4 text-gray-100">Platform</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Features</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Use Cases</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Roadmap</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Integrations</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Pricing</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Features</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Use Cases</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Roadmap</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Integrations</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Pricing</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-semibold text-lg mb-4 text-gray-100">Resources</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Documentation</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Knowledge Base</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Case Studies</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Contact Support</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Documentation</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Knowledge Base</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Blog</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Case Studies</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">Contact Support</a></li>
             </ul>
           </div>
         </div>
         
-        <div className="section-divider mb-8"></div>
+        <div className="border-t border-purple-500/10 mb-8 mt-8"></div>
         
         <div className="flex flex-col sm:flex-row items-center justify-between">
           <p className="text-gray-500 text-sm mb-4 sm:mb-0">
             &copy; {currentYear} Techno Clubs. All rights reserved.
           </p>
           <div className="flex space-x-6">
-            <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Privacy Policy</a>
-            <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Terms of Service</a>
-            <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Cookies</a>
+            <a href="#" className="text-gray-500 hover:text-purple-500 transition-colors text-sm">Privacy Policy</a>
+            <a href="#" className="text-gray-500 hover:text-purple-500 transition-colors text-sm">Terms of Service</a>
+            <a href="#" className="text-gray-500 hover:text-purple-500 transition-colors text-sm">Cookies</a>
           </div>
         </div>
       </div>
