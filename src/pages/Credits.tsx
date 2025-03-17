@@ -43,6 +43,7 @@ import {
   FileText, 
   Building 
 } from 'lucide-react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const userData = {
   name: "Alex Johnson",
@@ -77,6 +78,14 @@ const activityTypes = {
   mentorship: <User className="h-4 w-4 text-purple-500" />,
   content_creation: <FileText className="h-4 w-4 text-amber-500" />,
   representation: <Building className="h-4 w-4 text-rose-500" />
+};
+
+const rewardImages = {
+  "Workshop Certificate": "https://images.unsplash.com/photo-1522543558187-768b6df7c25c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+  "Tech Conference Pass": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+  "Campus Cafe Voucher": "https://images.unsplash.com/photo-1606790190211-aa9c14239773?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+  "Club Merchandise": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+  "Priority Event Registration": "https://images.unsplash.com/photo-1560439514-e960a3ef5019?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
 };
 
 const RankBadge: React.FC<{ rank: string }> = ({ rank }) => {
@@ -425,8 +434,14 @@ const Credits: React.FC = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="h-32 bg-gray-100 rounded-md flex items-center justify-center">
-                        <Award className="h-12 w-12 text-indigo-300" />
+                      <div className="overflow-hidden rounded-md">
+                        <AspectRatio ratio={16 / 9}>
+                          <img 
+                            src={rewardImages[reward.name as keyof typeof rewardImages]} 
+                            alt={reward.name}
+                            className="h-full w-full object-cover transition-all hover:scale-105 duration-300"
+                          />
+                        </AspectRatio>
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
