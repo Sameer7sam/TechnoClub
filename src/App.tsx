@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Membership from "./pages/Membership";
 import Collaboration from "./pages/Collaboration";
 import Credits from "./pages/Credits";
+import Reports from "./pages/Reports";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/membership" element={<Membership />} />
           <Route path="/collaboration" element={<Collaboration />} />
           <Route path="/credits" element={<Credits />} />
+          <Route path="/reports" element={<Reports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
