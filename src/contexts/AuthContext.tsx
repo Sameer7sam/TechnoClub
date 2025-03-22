@@ -12,6 +12,11 @@ type User = {
   chapter: string;
   totalCredits: number;
   joinDate: string;
+  // Additional fields for new registration form
+  phoneNumber?: string;
+  city?: string;
+  state?: string;
+  college?: string;
 };
 
 type AuthContextType = {
@@ -35,6 +40,10 @@ const MOCK_USERS = [
     chapter: 'Computer Society',
     totalCredits: 450,
     joinDate: '2023-08-15',
+    phoneNumber: '1234567890',
+    city: 'San Francisco',
+    state: 'California',
+    college: 'Stanford University',
   },
   {
     id: '2',
@@ -47,6 +56,10 @@ const MOCK_USERS = [
     chapter: 'SIGAI',
     totalCredits: 720,
     joinDate: '2023-06-10',
+    phoneNumber: '0987654321',
+    city: 'Boston',
+    state: 'Massachusetts',
+    college: 'MIT',
   }
 ];
 

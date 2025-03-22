@@ -22,13 +22,6 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
@@ -36,12 +29,14 @@ import Footer from '@/components/Footer';
 import { UserPlus } from 'lucide-react';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Full name must be at least 2 characters" }),
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  studentId: z.string().min(2, { message: "Student ID is required" }),
-  club: z.string({ required_error: "Please select a club" }),
-  chapter: z.string({ required_error: "Please select a chapter" }),
+  phoneNumber: z.string().min(10, { message: "Please enter a valid phone number" }),
+  city: z.string().min(2, { message: "City is required" }),
+  state: z.string().min(2, { message: "State is required" }),
+  college: z.string().min(2, { message: "College name is required" }),
 });
 
 const Register: React.FC = () => {
@@ -51,39 +46,37 @@ const Register: React.FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
-      studentId: "",
-      club: "",
-      chapter: "",
+      phoneNumber: "",
+      city: "",
+      state: "",
+      college: "",
     },
   });
 
   const isSubmitting = form.formState.isSubmitting;
-  
-  const clubs = ["IEEE", "ACM", "AWS", "GDG", "STIC"];
-  const chapters = {
-    "IEEE": ["Computer Society", "Signal Processing", "Robotics & Automation", "Women in Engineering"],
-    "ACM": ["General", "SIGCHI", "SIGAI", "SIGSOFT"],
-    "AWS": ["Cloud Computing", "Machine Learning", "DevOps", "Solutions Architecture"],
-    "GDG": ["Web", "Mobile", "Cloud", "Machine Learning"],
-    "STIC": ["Coding", "Design", "Hardware", "Research"],
-  };
-  
-  const selectedClub = form.watch("club");
-  const availableChapters = selectedClub ? chapters[selectedClub as keyof typeof chapters] : [];
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // Combine first and last name for the name field
+      const fullName = `${values.firstName} ${values.lastName}`;
+      
       await register({
-        name: values.name,
+        name: fullName,
         email: values.email,
         password: values.password,
-        studentId: values.studentId,
+        studentId: "TBD", // Default value as we're not collecting this now
         role: 'member',
-        club: values.club,
-        chapter: values.chapter,
+        club: "Unassigned", // Default value as we're not collecting this now
+        chapter: "Unassigned", // Default value as we're not collecting this now
+        // These fields aren't in the User type but we'll pass them anyway
+        phoneNumber: values.phoneNumber,
+        city: values.city,
+        state: values.state,
+        college: values.college,
       });
       toast.success("Registration successful!");
       navigate('/profile');
@@ -116,23 +109,43 @@ const Register: React.FC = () => {
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-300">Full Name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="John Doe" 
-                            {...field} 
-                            className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">First Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="John" 
+                              {...field} 
+                              className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">Last Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Doe" 
+                              {...field} 
+                              className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   
                   <FormField
                     control={form.control}
@@ -174,13 +187,13 @@ const Register: React.FC = () => {
                   
                   <FormField
                     control={form.control}
-                    name="studentId"
+                    name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-300">Student ID</FormLabel>
+                        <FormLabel className="text-gray-300">Phone Number</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="e.g., A12345678" 
+                            placeholder="e.g., 1234567890" 
                             {...field} 
                             className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                           />
@@ -190,50 +203,57 @@ const Register: React.FC = () => {
                     )}
                   />
                   
-                  <FormField
-                    control={form.control}
-                    name="club"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-300">Club</FormLabel>
-                        <Select onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue("chapter", ""); // Reset chapter when club changes
-                        }} defaultValue={field.value}>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">City</FormLabel>
                           <FormControl>
-                            <SelectTrigger className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50">
-                              <SelectValue placeholder="Select club" />
-                            </SelectTrigger>
+                            <Input 
+                              placeholder="Your City" 
+                              {...field} 
+                              className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                            />
                           </FormControl>
-                          <SelectContent className="bg-space-navy border border-purple-500/20">
-                            {clubs.map((club) => (
-                              <SelectItem key={club} value={club}>{club}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">State</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Your State" 
+                              {...field} 
+                              className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   
                   <FormField
                     control={form.control}
-                    name="chapter"
+                    name="college"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-300">Chapter</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedClub}>
-                          <FormControl>
-                            <SelectTrigger className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50">
-                              <SelectValue placeholder={selectedClub ? "Select chapter" : "Select a club first"} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-space-navy border border-purple-500/20">
-                            {availableChapters.map((chapter) => (
-                              <SelectItem key={chapter} value={chapter}>{chapter}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel className="text-gray-300">College</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Your College/University" 
+                            {...field} 
+                            className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
