@@ -21,6 +21,8 @@ import { FileDown, Calendar, Users, Award, Activity, Filter, BarChart, PieChart,
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import { BarChart as RechartsBarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 // Mock data for reports
 const membershipData = [
@@ -33,11 +35,11 @@ const membershipData = [
 ];
 
 const collaborationData = [
-  { name: "IEEE Events", count: 12 },
-  { name: "ACM Workshops", count: 8 },
-  { name: "GDG Hackathons", count: 5 },
-  { name: "AWS Trainings", count: 7 },
-  { name: "STIC Conferences", count: 3 },
+  { name: "IEEE Events", count: 12, value: 25 },
+  { name: "ACM Workshops", count: 8, value: 20 },
+  { name: "GDG Hackathons", count: 5, value: 15 },
+  { name: "AWS Trainings", count: 7, value: 18 },
+  { name: "STIC Conferences", count: 3, value: 12 },
 ];
 
 const clubData = [
@@ -47,6 +49,9 @@ const clubData = [
   { id: 4, name: "AWS", members: 75, events: 10, lastEvent: "2023-12-01" },
   { id: 5, name: "STIC", members: 60, events: 6, lastEvent: "2023-11-15" },
 ];
+
+// Custom color palette for the charts
+const COLORS = ['#8B5CF6', '#EC4899', '#6366F1', '#F472B6', '#6EE7B7', '#10B981'];
 
 const Reports: React.FC = () => {
   const { toast } = useToast();
@@ -194,12 +199,52 @@ const Reports: React.FC = () => {
                   </CardTitle>
                   <CardDescription>New member registrations over time</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80 flex items-center justify-center">
-                  <div className="text-center text-gray-400">
-                    <BarChart className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
-                    <p>Chart visualization of membership growth would appear here</p>
-                    <p className="text-sm text-gray-500 mt-2">Data updated as of December 15, 2023</p>
-                  </div>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart
+                      data={membershipData}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                      <XAxis 
+                        dataKey="month" 
+                        stroke="#a899df" 
+                        tick={{ fill: '#a899df' }}
+                      />
+                      <YAxis 
+                        stroke="#a899df" 
+                        tick={{ fill: '#a899df' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                          border: '1px solid rgba(139, 92, 246, 0.3)',
+                          borderRadius: '8px',
+                          color: '#e2e8f0'
+                        }} 
+                      />
+                      <Legend 
+                        wrapperStyle={{ color: '#e2e8f0' }}
+                      />
+                      <Bar 
+                        dataKey="count" 
+                        name="New Members" 
+                        fill="url(#membershipGradient)" 
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <defs>
+                        <linearGradient id="membershipGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9}/>
+                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0.6}/>
+                        </linearGradient>
+                      </defs>
+                    </RechartsBarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
               
@@ -211,12 +256,41 @@ const Reports: React.FC = () => {
                   </CardTitle>
                   <CardDescription>Member distribution across clubs</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80 flex items-center justify-center">
-                  <div className="text-center text-gray-400">
-                    <PieChart className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
-                    <p>Chart visualization of club participation would appear here</p>
-                    <p className="text-sm text-gray-500 mt-2">Data updated as of December 15, 2023</p>
-                  </div>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={collaborationData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={120}
+                        innerRadius={60}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        dataKey="value"
+                        paddingAngle={3}
+                      >
+                        {collaborationData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                          border: '1px solid rgba(139, 92, 246, 0.3)',
+                          borderRadius: '8px',
+                          color: '#e2e8f0'
+                        }}
+                        formatter={(value, name) => [`${value} Members`, name]}
+                      />
+                      <Legend 
+                        wrapperStyle={{ 
+                          color: '#e2e8f0',
+                          paddingTop: '20px'
+                        }} 
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
@@ -238,11 +312,119 @@ const Reports: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Membership report content would go here */}
-                  <div className="text-center text-gray-400 py-12">
-                    <Users className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
-                    <p>Detailed membership reports and visualizations would appear here</p>
-                    <p className="text-sm text-gray-500 mt-2">Including demographics, retention rates, and engagement metrics</p>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
+                      <h3 className="text-lg font-medium text-white mb-4">Membership Growth Trend</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsBarChart
+                            data={membershipData}
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 20,
+                              bottom: 5,
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                            <XAxis 
+                              dataKey="month" 
+                              stroke="#a899df" 
+                              tick={{ fill: '#a899df' }}
+                            />
+                            <YAxis 
+                              stroke="#a899df" 
+                              tick={{ fill: '#a899df' }}
+                            />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0'
+                              }} 
+                            />
+                            <Bar 
+                              dataKey="count" 
+                              name="New Members" 
+                              fill="url(#membershipGradient2)" 
+                              radius={[4, 4, 0, 0]}
+                            />
+                            <defs>
+                              <linearGradient id="membershipGradient2" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9}/>
+                                <stop offset="100%" stopColor="#EC4899" stopOpacity={0.6}/>
+                              </linearGradient>
+                            </defs>
+                          </RechartsBarChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <div className="bg-purple-500/10 p-3 rounded-lg">
+                          <p className="text-sm text-gray-400">Total New Members</p>
+                          <p className="text-2xl font-bold text-gradient">{membershipData.reduce((acc, item) => acc + item.count, 0)}</p>
+                        </div>
+                        <div className="bg-purple-500/10 p-3 rounded-lg">
+                          <p className="text-sm text-gray-400">Average Monthly Growth</p>
+                          <p className="text-2xl font-bold text-gradient">{Math.round(membershipData.reduce((acc, item) => acc + item.count, 0) / membershipData.length)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
+                      <h3 className="text-lg font-medium text-white mb-4">Member Demographics</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={[
+                                { name: "Computer Science", value: 42 },
+                                { name: "Electrical Engineering", value: 28 },
+                                { name: "Mechanical Engineering", value: 15 },
+                                { name: "Information Technology", value: 25 },
+                                { name: "Other", value: 10 }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              outerRadius={80}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                              dataKey="value"
+                              paddingAngle={3}
+                            >
+                              {COLORS.map((color, index) => (
+                                <Cell key={`cell-${index}`} fill={color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0'
+                              }}
+                            />
+                            <Legend 
+                              wrapperStyle={{ 
+                                color: '#e2e8f0',
+                                fontSize: '12px',
+                                paddingTop: '10px'
+                              }} 
+                            />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <div className="bg-purple-500/10 p-3 rounded-lg">
+                          <p className="text-sm text-gray-400">Students</p>
+                          <p className="text-2xl font-bold text-gradient">85%</p>
+                        </div>
+                        <div className="bg-purple-500/10 p-3 rounded-lg">
+                          <p className="text-sm text-gray-400">Professionals</p>
+                          <p className="text-2xl font-bold text-gradient">15%</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -265,11 +447,91 @@ const Reports: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Events report content would go here */}
-                  <div className="text-center text-gray-400 py-12">
-                    <Calendar className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
-                    <p>Detailed event reports and attendance analytics would appear here</p>
-                    <p className="text-sm text-gray-500 mt-2">Including participation rates, feedback scores, and trending topics</p>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
+                      <h3 className="text-lg font-medium text-white mb-4">Event Participation by Club</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsBarChart
+                            data={collaborationData}
+                            layout="vertical"
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 100,
+                              bottom: 5,
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                            <XAxis type="number" stroke="#a899df" tick={{ fill: '#a899df' }} />
+                            <YAxis 
+                              dataKey="name" 
+                              type="category" 
+                              stroke="#a899df" 
+                              tick={{ fill: '#a899df' }}
+                              width={100}
+                            />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0'
+                              }} 
+                            />
+                            <Bar 
+                              dataKey="count" 
+                              name="Event Count" 
+                              fill="url(#eventGradient)" 
+                              radius={[0, 4, 4, 0]}
+                            />
+                            <defs>
+                              <linearGradient id="eventGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="#EC4899" stopOpacity={0.6}/>
+                                <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.9}/>
+                              </linearGradient>
+                            </defs>
+                          </RechartsBarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
+                      <h3 className="text-lg font-medium text-white mb-4">Event Attendance Statistics</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsBarChart
+                            data={[
+                              { name: "Workshops", virtual: 120, inPerson: 85 },
+                              { name: "Hackathons", virtual: 50, inPerson: 90 },
+                              { name: "Conferences", virtual: 110, inPerson: 60 },
+                              { name: "Tech Talks", virtual: 140, inPerson: 40 },
+                            ]}
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 20,
+                              bottom: 5,
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                            <XAxis dataKey="name" stroke="#a899df" tick={{ fill: '#a899df' }} />
+                            <YAxis stroke="#a899df" tick={{ fill: '#a899df' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0'
+                              }} 
+                            />
+                            <Legend wrapperStyle={{ color: '#e2e8f0' }} />
+                            <Bar dataKey="virtual" name="Virtual" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="inPerson" name="In-Person" fill="#EC4899" radius={[4, 4, 0, 0]} />
+                          </RechartsBarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
