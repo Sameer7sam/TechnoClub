@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieCha
 import { FileDown, Calendar, Users, Award, Activity, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 
 // Mock data for reports
 const membershipData = [
@@ -85,6 +86,7 @@ const Reports = () => {
 
   return (
     <>
+      <Navbar />
       <div className="container max-w-7xl mx-auto py-8 px-4 sm:px-6 mt-20">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Reports Dashboard</h1>
