@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -29,10 +30,12 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Updated navLinks order: Home, Membership, Collaboration, Credits, Reports
   const navLinks = [
     { name: 'Home', path: '/', icon: <Rocket className="h-4 w-4 mr-2" />, always: true },
-    { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" />, auth: true },
+    { name: 'Membership', path: '/membership', icon: <User className="h-4 w-4 mr-2" />, always: true },
     { name: 'Collaboration', path: '/collaboration', icon: <Users className="h-4 w-4 mr-2" />, auth: true },
+    { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Reports', path: '/reports', icon: <BarChart className="h-4 w-4 mr-2" />, auth: true },
   ];
 
@@ -61,13 +64,13 @@ const Navbar: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'glass-dark py-2 backdrop-blur-lg' : 'bg-transparent py-4'
+        isScrolled ? 'glass-dark py-2 backdrop-blur-lg shadow-lg' : 'bg-transparent py-4'
       }`}
     >
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full p-2">
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full p-2 shadow-neon">
               <Rocket
                 className="h-6 w-6"
               />

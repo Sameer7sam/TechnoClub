@@ -1,516 +1,335 @@
+
 import React, { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { FileDown, Calendar, Users, Award, Activity, Filter } from 'lucide-react';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileDown, Calendar, Users, Award, Activity, Filter, BarChart, PieChart, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 
 // Mock data for reports
 const membershipData = [
-  { month: 'Jan', members: 45 },
-  { month: 'Feb', members: 52 },
-  { month: 'Mar', members: 49 },
-  { month: 'Apr', members: 62 },
-  { month: 'May', members: 78 },
-  { month: 'Jun', members: 94 },
+  { month: "Jan", count: 42 },
+  { month: "Feb", count: 56 },
+  { month: "Mar", count: 73 },
+  { month: "Apr", count: 85 },
+  { month: "May", count: 102 },
+  { month: "Jun", count: 120 },
 ];
 
-const eventAttendanceData = [
-  { event: 'AI Workshop', attendance: 86 },
-  { event: 'Hackathon', attendance: 112 },
-  { event: 'Web3 Talk', attendance: 45 },
-  { event: 'Coding Contest', attendance: 72 },
-  { event: 'Tech Meetup', attendance: 68 },
+const collaborationData = [
+  { name: "IEEE Events", count: 12 },
+  { name: "ACM Workshops", count: 8 },
+  { name: "GDG Hackathons", count: 5 },
+  { name: "AWS Trainings", count: 7 },
+  { name: "STIC Conferences", count: 3 },
 ];
 
-const contributionData = [
-  { category: 'Development', value: 35, color: '#8B5CF6' },
-  { category: 'Design', value: 25, color: '#D946EF' },
-  { category: 'Content', value: 20, color: '#F97316' },
-  { category: 'Mentorship', value: 15, color: '#0EA5E9' },
-  { category: 'Other', value: 5, color: '#8A898C' },
+const clubData = [
+  { id: 1, name: "IEEE", members: 120, events: 15, lastEvent: "2023-12-10" },
+  { id: 2, name: "ACM", members: 95, events: 12, lastEvent: "2023-12-05" },
+  { id: 3, name: "GDG", members: 85, events: 8, lastEvent: "2023-11-20" },
+  { id: 4, name: "AWS", members: 75, events: 10, lastEvent: "2023-12-01" },
+  { id: 5, name: "STIC", members: 60, events: 6, lastEvent: "2023-11-15" },
 ];
 
-const activityTrends = [
-  { week: 'Week 1', activity: 42 },
-  { week: 'Week 2', activity: 48 },
-  { week: 'Week 3', activity: 39 },
-  { week: 'Week 4', activity: 53 },
-  { week: 'Week 5', activity: 62 },
-  { week: 'Week 6', activity: 58 },
-];
-
-const membersList = [
-  { id: 1, name: 'Alex Johnson', role: 'President', joined: '2023-01-15', credits: 450 },
-  { id: 2, name: 'Sarah Chen', role: 'Developer', joined: '2023-02-22', credits: 320 },
-  { id: 3, name: 'Michael Rodriguez', role: 'Designer', joined: '2023-01-30', credits: 285 },
-  { id: 4, name: 'Jamie Singh', role: 'Content Creator', joined: '2023-03-12', credits: 310 },
-  { id: 5, name: 'Taylor Kim', role: 'Mentor', joined: '2023-02-05', credits: 380 },
-];
-
-const eventsList = [
-  { id: 1, name: 'AI Workshop', date: '2023-05-15', attendance: 86, organizer: 'AI Team' },
-  { id: 2, name: 'Hackathon', date: '2023-04-22', attendance: 112, organizer: 'Dev Team' },
-  { id: 3, name: 'Web3 Talk', date: '2023-06-10', attendance: 45, organizer: 'Blockchain Team' },
-  { id: 4, name: 'Coding Contest', date: '2023-05-30', attendance: 72, organizer: 'Coding Team' },
-  { id: 5, name: 'Tech Meetup', date: '2023-06-20', attendance: 68, organizer: 'Community Team' },
-];
-
-const Reports = () => {
+const Reports: React.FC = () => {
   const { toast } = useToast();
-  const [dateRange, setDateRange] = useState({ from: '', to: '' });
-  
-  // Chart configurations
-  const chartConfig = {
-    primary: { color: '#8B5CF6' }, // Vivid Purple
-    secondary: { color: '#D946EF' }, // Magenta Pink
-    tertiary: { color: '#F97316' }, // Bright Orange
-    quaternary: { color: '#0EA5E9' }, // Ocean Blue
-    neutral: { color: '#403E43' }, // Charcoal Gray
-  };
+  const [timeframe, setTimeframe] = useState("monthly");
+  const [clubFilter, setClubFilter] = useState("all");
 
-  const exportReport = (reportType: string) => {
-    // In a real application, this would generate and download a CSV/PDF file
+  const handleDownload = (reportType: string) => {
     toast({
-      title: "Report Exported",
-      description: `${reportType} report has been downloaded.`,
+      title: "Download Started",
+      description: `${reportType} report will be downloaded shortly.`,
     });
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-space-black relative overflow-hidden">
+      {/* Background effects */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-space-black via-space-deepBlue to-space-navy opacity-80"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_20%,rgba(120,50,255,0.1),transparent)]"></div>
+        <div className="absolute inset-0 stars-bg opacity-40"></div>
+        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-purple-500/5 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-1/4 w-96 h-96 rounded-full bg-pink-500/5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+      </div>
+      
       <Navbar />
-      <div className="container max-w-7xl mx-auto py-8 px-4 sm:px-6 mt-20">
+      
+      <div className="container max-w-7xl mx-auto py-8 px-4 sm:px-6 mt-20 z-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Reports Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Generate and analyze club activity data with interactive reports.
-          </p>
+          <div className="inline-block px-3 py-1 mb-4 rounded-full border border-purple-500/30 bg-purple-500/10 backdrop-blur-sm">
+            <span className="text-sm font-medium text-purple-300">Analytics Dashboard</span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Reports Dashboard</h1>
+          <p className="text-gray-400">View and analyze data across all tech clubs and activities.</p>
         </div>
 
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="from">From</Label>
-              <Input
-                id="from"
-                type="date"
-                value={dateRange.from}
-                onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-                className="w-full sm:w-40"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="to">To</Label>
-              <Input
-                id="to"
-                type="date"
-                value={dateRange.to}
-                onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-                className="w-full sm:w-40"
-              />
-            </div>
+        <div className="flex flex-wrap gap-4 justify-between mb-6">
+          <div className="flex flex-wrap gap-2">
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger className="w-[180px] bg-space-navy/50 border-purple-500/20">
+                <SelectValue placeholder="Select timeframe" />
+              </SelectTrigger>
+              <SelectContent className="bg-space-navy border-purple-500/20">
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={clubFilter} onValueChange={setClubFilter}>
+              <SelectTrigger className="w-[180px] bg-space-navy/50 border-purple-500/20">
+                <SelectValue placeholder="Filter by club" />
+              </SelectTrigger>
+              <SelectContent className="bg-space-navy border-purple-500/20">
+                <SelectItem value="all">All Clubs</SelectItem>
+                <SelectItem value="ieee">IEEE</SelectItem>
+                <SelectItem value="acm">ACM</SelectItem>
+                <SelectItem value="gdg">GDG</SelectItem>
+                <SelectItem value="aws">AWS</SelectItem>
+                <SelectItem value="stic">STIC</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button variant="outline" className="flex items-center gap-2 bg-space-navy/50 border-purple-500/20 hover:bg-purple-500/20">
+              <Filter className="h-4 w-4" />
+              More Filters
+            </Button>
           </div>
-          <Button variant="outline" className="gap-2 mt-4 sm:mt-auto">
-            <Filter className="h-4 w-4" />
-            <span>Apply Filters</span>
+          
+          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 button-shine" onClick={() => handleDownload("Complete")}>
+            <FileDown className="mr-2 h-4 w-4" />
+            Download All Reports
           </Button>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex sm:flex-row">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="membership">Membership</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="contributions">Contributions</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid grid-cols-4 w-full max-w-md bg-space-navy/50 border border-purple-500/20">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Overview</TabsTrigger>
+            <TabsTrigger value="membership" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Membership</TabsTrigger>
+            <TabsTrigger value="events" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Events</TabsTrigger>
+            <TabsTrigger value="clubs" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Clubs</TabsTrigger>
           </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
+          
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="glass-card cosmic-glow border-purple-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl flex items-center">
+                    <Users className="mr-2 h-5 w-5 text-purple-400" />
+                    Total Members
+                  </CardTitle>
+                  <CardDescription>Across all tech clubs</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-gradient">435</div>
+                  <p className="text-sm text-green-400 flex items-center mt-1">
+                    <TrendingUp className="mr-1 h-4 w-4" />
+                    +12.5% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="glass-card cosmic-glow border-purple-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl flex items-center">
+                    <Calendar className="mr-2 h-5 w-5 text-purple-400" />
+                    Active Events
+                  </CardTitle>
+                  <CardDescription>Ongoing & upcoming</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-gradient">26</div>
+                  <p className="text-sm text-green-400 flex items-center mt-1">
+                    <TrendingUp className="mr-1 h-4 w-4" />
+                    +8.3% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="glass-card cosmic-glow border-purple-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl flex items-center">
+                    <Award className="mr-2 h-5 w-5 text-purple-400" />
+                    Credits Earned
+                  </CardTitle>
+                  <CardDescription>Total across platform</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-gradient">12,850</div>
+                  <p className="text-sm text-green-400 flex items-center mt-1">
+                    <TrendingUp className="mr-1 h-4 w-4" />
+                    +15.2% from last month
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <Card className="glass-card cosmic-glow border-purple-500/20">
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <Users className="h-5 w-5" />
+                  <CardTitle className="flex items-center">
+                    <BarChart className="mr-2 h-5 w-5 text-purple-400" />
                     Membership Growth
                   </CardTitle>
-                  <CardDescription>Monthly member count over time</CardDescription>
+                  <CardDescription>New member registrations over time</CardDescription>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <ChartContainer config={chartConfig} className="h-80">
-                    <LineChart data={membershipData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="members" 
-                        stroke="var(--color-primary)" 
-                        strokeWidth={2} 
-                        activeDot={{ r: 6 }} 
-                      />
-                    </LineChart>
-                  </ChartContainer>
+                <CardContent className="h-80 flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <BarChart className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
+                    <p>Chart visualization of membership growth would appear here</p>
+                    <p className="text-sm text-gray-500 mt-2">Data updated as of December 15, 2023</p>
+                  </div>
                 </CardContent>
-                <CardFooter>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={() => exportReport('Membership Growth')}>
-                    <FileDown className="h-4 w-4" />
-                    Export Data
-                  </Button>
-                </CardFooter>
               </Card>
-
-              <Card>
+              
+              <Card className="glass-card cosmic-glow border-purple-500/20">
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    Contribution Breakdown
+                  <CardTitle className="flex items-center">
+                    <PieChart className="mr-2 h-5 w-5 text-purple-400" />
+                    Club Participation
                   </CardTitle>
-                  <CardDescription>Distribution by activity type</CardDescription>
+                  <CardDescription>Member distribution across clubs</CardDescription>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <ChartContainer config={chartConfig} className="h-80">
-                    <PieChart>
-                      <Pie
-                        data={contributionData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {contributionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                      />
-                    </PieChart>
-                  </ChartContainer>
+                <CardContent className="h-80 flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <PieChart className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
+                    <p>Chart visualization of club participation would appear here</p>
+                    <p className="text-sm text-gray-500 mt-2">Data updated as of December 15, 2023</p>
+                  </div>
                 </CardContent>
-                <CardFooter>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={() => exportReport('Contribution Breakdown')}>
-                    <FileDown className="h-4 w-4" />
-                    Export Data
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Event Attendance
-                  </CardTitle>
-                  <CardDescription>Participation rates by event</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <ChartContainer config={chartConfig} className="h-80">
-                    <BarChart data={eventAttendanceData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="event" />
-                      <YAxis />
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                      />
-                      <Bar 
-                        dataKey="attendance" 
-                        fill="var(--color-tertiary)" 
-                        barSize={30} 
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={() => exportReport('Event Attendance')}>
-                    <FileDown className="h-4 w-4" />
-                    Export Data
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    Activity Trends
-                  </CardTitle>
-                  <CardDescription>Weekly activity patterns</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <ChartContainer config={chartConfig} className="h-80">
-                    <LineChart data={activityTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="week" />
-                      <YAxis />
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="activity" 
-                        stroke="var(--color-quaternary)" 
-                        strokeWidth={2} 
-                        activeDot={{ r: 6 }} 
-                      />
-                    </LineChart>
-                  </ChartContainer>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={() => exportReport('Activity Trends')}>
-                    <FileDown className="h-4 w-4" />
-                    Export Data
-                  </Button>
-                </CardFooter>
               </Card>
             </div>
           </TabsContent>
-
-          {/* Membership Tab */}
-          <TabsContent value="membership" className="space-y-6">
-            <Card>
+          
+          <TabsContent value="membership">
+            <Card className="glass-card cosmic-glow border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Members Report
-                </CardTitle>
-                <CardDescription>Detailed information about club members</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Membership Reports</CardTitle>
+                    <CardDescription>Detailed membership statistics and demographics</CardDescription>
+                  </div>
+                  <Button variant="outline" className="bg-space-navy/50 border-purple-500/20 hover:bg-purple-500/20" onClick={() => handleDownload("Membership")}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Join Date</TableHead>
-                        <TableHead>Credits</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {membersList.map((member) => (
-                        <TableRow key={member.id}>
-                          <TableCell className="font-medium">{member.name}</TableCell>
-                          <TableCell>{member.role}</TableCell>
-                          <TableCell>{new Date(member.joined).toLocaleDateString()}</TableCell>
-                          <TableCell>{member.credits}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="space-y-6">
+                  {/* Membership report content would go here */}
+                  <div className="text-center text-gray-400 py-12">
+                    <Users className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
+                    <p>Detailed membership reports and visualizations would appear here</p>
+                    <p className="text-sm text-gray-500 mt-2">Including demographics, retention rates, and engagement metrics</p>
+                  </div>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Members List')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Membership Growth
-                </CardTitle>
-                <CardDescription>Monthly member count over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-80">
-                  <LineChart data={membershipData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="members" 
-                      stroke="var(--color-primary)" 
-                      strokeWidth={2} 
-                      activeDot={{ r: 6 }} 
-                    />
-                  </LineChart>
-                </ChartContainer>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Membership Growth')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
-
-          {/* Events Tab */}
-          <TabsContent value="events" className="space-y-6">
-            <Card>
+          
+          <TabsContent value="events">
+            <Card className="glass-card cosmic-glow border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Events Report
-                </CardTitle>
-                <CardDescription>Detailed information about club events</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Events Reports</CardTitle>
+                    <CardDescription>Analytics on events, workshops, and hackathons</CardDescription>
+                  </div>
+                  <Button variant="outline" className="bg-space-navy/50 border-purple-500/20 hover:bg-purple-500/20" onClick={() => handleDownload("Events")}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Event Name</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Attendance</TableHead>
-                        <TableHead>Organizer</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {eventsList.map((event) => (
-                        <TableRow key={event.id}>
-                          <TableCell className="font-medium">{event.name}</TableCell>
-                          <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                          <TableCell>{event.attendance}</TableCell>
-                          <TableCell>{event.organizer}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="space-y-6">
+                  {/* Events report content would go here */}
+                  <div className="text-center text-gray-400 py-12">
+                    <Calendar className="mx-auto h-16 w-16 text-purple-500/40 mb-4" />
+                    <p>Detailed event reports and attendance analytics would appear here</p>
+                    <p className="text-sm text-gray-500 mt-2">Including participation rates, feedback scores, and trending topics</p>
+                  </div>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Events List')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Event Attendance
-                </CardTitle>
-                <CardDescription>Participation rates by event</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-80">
-                  <BarChart data={eventAttendanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="event" />
-                    <YAxis />
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
-                    <Bar 
-                      dataKey="attendance" 
-                      fill="var(--color-tertiary)" 
-                      barSize={30} 
-                    />
-                  </BarChart>
-                </ChartContainer>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Event Attendance')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
-
-          {/* Contributions Tab */}
-          <TabsContent value="contributions" className="space-y-6">
-            <Card>
+          
+          <TabsContent value="clubs">
+            <Card className="glass-card cosmic-glow border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Contribution Breakdown
-                </CardTitle>
-                <CardDescription>Distribution by activity type</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Clubs Performance</CardTitle>
+                    <CardDescription>Comparative analysis of tech clubs activities</CardDescription>
+                  </div>
+                  <Button variant="outline" className="bg-space-navy/50 border-purple-500/20 hover:bg-purple-500/20" onClick={() => handleDownload("Clubs")}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={chartConfig} className="h-80">
-                  <PieChart>
-                    <Pie
-                      data={contributionData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {contributionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-purple-500/20">
+                        <th className="text-left py-3 px-4">Club Name</th>
+                        <th className="text-left py-3 px-4">Members</th>
+                        <th className="text-left py-3 px-4">Events</th>
+                        <th className="text-left py-3 px-4">Last Event</th>
+                        <th className="text-left py-3 px-4">Growth</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clubData.map((club) => (
+                        <tr key={club.id} className="border-b border-purple-500/10 hover:bg-purple-500/10">
+                          <td className="py-3 px-4 font-medium">{club.name}</td>
+                          <td className="py-3 px-4">{club.members}</td>
+                          <td className="py-3 px-4">{club.events}</td>
+                          <td className="py-3 px-4">{new Date(club.lastEvent).toLocaleDateString()}</td>
+                          <td className="py-3 px-4">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                              <TrendingUp className="mr-1 h-3 w-3" />
+                              +{Math.floor(Math.random() * 20) + 5}%
+                            </span>
+                          </td>
+                        </tr>
                       ))}
-                    </Pie>
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
-                  </PieChart>
-                </ChartContainer>
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Contribution Breakdown')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Activity Trends
-                </CardTitle>
-                <CardDescription>Weekly activity patterns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-80">
-                  <LineChart data={activityTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" />
-                    <YAxis />
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="activity" 
-                      stroke="var(--color-quaternary)" 
-                      strokeWidth={2} 
-                      activeDot={{ r: 6 }} 
-                    />
-                  </LineChart>
-                </ChartContainer>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="gap-2" onClick={() => exportReport('Activity Trends')}>
-                  <FileDown className="h-4 w-4" />
-                  Export Report
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-      <Footer />
-    </>
+      
+      <div className="mt-auto">
+        <Footer />
+      </div>
+    </div>
   );
 };
 
