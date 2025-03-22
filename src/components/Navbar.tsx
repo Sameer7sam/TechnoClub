@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -69,7 +68,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full p-2">
-              <Moon
+              <Rocket
                 className="h-6 w-6"
               />
             </span>
