@@ -15,7 +15,6 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
-import Credits from "./pages/Credits";
 
 const queryClient = new QueryClient();
 
@@ -44,11 +43,6 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/credits" element={
-              <ProtectedRoute>
-                <Credits />
-              </ProtectedRoute>
-            } />
-            <Route path="/enhancedcredits" element={
               <ProtectedRoute>
                 <EnhancedCredits />
               </ProtectedRoute>
