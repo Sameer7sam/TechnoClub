@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -21,25 +20,40 @@ import { FileDown, Calendar, Users, Award, Activity, Filter, BarChart, PieChart,
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import { BarChart as RechartsBarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart as RechartsBarChart, 
+  Bar, 
+  PieChart as RechartsPieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+  LineChart,
+  Line
+} from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-// Mock data for reports
 const membershipData = [
-  { month: "Jan", count: 42 },
-  { month: "Feb", count: 56 },
-  { month: "Mar", count: 73 },
-  { month: "Apr", count: 85 },
-  { month: "May", count: 102 },
-  { month: "Jun", count: 120 },
+  { month: "Jan", count: 42, previousYear: 30, newMembers: 15, returningMembers: 27 },
+  { month: "Feb", count: 56, previousYear: 35, newMembers: 26, returningMembers: 30 },
+  { month: "Mar", count: 73, previousYear: 42, newMembers: 38, returningMembers: 35 },
+  { month: "Apr", count: 85, previousYear: 58, newMembers: 42, returningMembers: 43 },
+  { month: "May", count: 102, previousYear: 65, newMembers: 55, returningMembers: 47 },
+  { month: "Jun", count: 120, previousYear: 72, newMembers: 58, returningMembers: 62 },
 ];
 
 const collaborationData = [
-  { name: "IEEE Events", count: 12, value: 25 },
-  { name: "ACM Workshops", count: 8, value: 20 },
-  { name: "GDG Hackathons", count: 5, value: 15 },
-  { name: "AWS Trainings", count: 7, value: 18 },
-  { name: "STIC Conferences", count: 3, value: 12 },
+  { name: "IEEE Events", count: 12, value: 25, engagement: 85, growth: 15 },
+  { name: "ACM Workshops", count: 8, value: 20, engagement: 78, growth: 12 },
+  { name: "GDG Hackathons", count: 5, value: 15, engagement: 92, growth: 20 },
+  { name: "AWS Trainings", count: 7, value: 18, engagement: 75, growth: 8 },
+  { name: "STIC Conferences", count: 3, value: 12, engagement: 80, growth: 10 },
 ];
 
 const clubData = [
@@ -50,8 +64,18 @@ const clubData = [
   { id: 5, name: "STIC", members: 60, events: 6, lastEvent: "2023-11-15" },
 ];
 
-// Custom color palette for the charts
-const COLORS = ['#8B5CF6', '#EC4899', '#6366F1', '#F472B6', '#6EE7B7', '#10B981'];
+const COLORS = [
+  '#8B5CF6', '#EC4899', '#6366F1', '#F472B6', '#6EE7B7', '#10B981', 
+  '#3B82F6', '#F59E0B', '#EF4444', '#14B8A6', '#8B5CF6', '#EC4899'
+];
+
+const gradients = {
+  purple: ['#8B5CF6', '#D946EF'],
+  blue: ['#3B82F6', '#06B6D4'],
+  pink: ['#EC4899', '#F87171'],
+  green: ['#10B981', '#6EE7B7'],
+  orange: ['#F59E0B', '#FBBF24'],
+};
 
 const Reports: React.FC = () => {
   const { toast } = useToast();
@@ -65,16 +89,23 @@ const Reports: React.FC = () => {
     });
   };
 
+  const membershipTooltipFormatter = (value: number, name: string) => {
+    if (name === 'newMembers') return [`${value} New Members`, 'New Members'];
+    if (name === 'returningMembers') return [`${value} Returning Members`, 'Returning Members'];
+    if (name === 'previousYear') return [`${value} Last Year`, 'Previous Year'];
+    return [`${value} Members`, name];
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-space-black relative overflow-hidden">
-      {/* Background effects */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-space-black via-space-deepBlue to-space-navy opacity-80"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_20%,rgba(120,50,255,0.1),transparent)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_20%,rgba(120,50,255,0.15),transparent)]"></div>
         <div className="absolute inset-0 stars-bg opacity-40"></div>
-        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-purple-500/5 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-1/4 w-96 h-96 rounded-full bg-pink-500/5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-1/4 w-120 h-120 rounded-full bg-pink-500/5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
       </div>
       
       <Navbar />
@@ -200,51 +231,117 @@ const Reports: React.FC = () => {
                   <CardDescription>New member registrations over time</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsBarChart
+                  <ChartContainer 
+                    className="h-full w-full" 
+                    config={{
+                      newMembers: { 
+                        label: "New Members",
+                        theme: { light: "#8B5CF6", dark: "#9333EA" }
+                      },
+                      returningMembers: { 
+                        label: "Returning Members",
+                        theme: { light: "#EC4899", dark: "#DB2777" } 
+                      },
+                      previousYear: { 
+                        label: "Previous Year",
+                        theme: { light: "#6EE7B7", dark: "#10B981" } 
+                      }
+                    }}
+                  >
+                    <AreaChart
                       data={membershipData}
-                      margin={{
-                        top: 20,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
                     >
+                      <defs>
+                        <linearGradient id="membershipGradientNew" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.2}/>
+                        </linearGradient>
+                        <linearGradient id="membershipGradientReturning" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#EC4899" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#EC4899" stopOpacity={0.2}/>
+                        </linearGradient>
+                        <linearGradient id="membershipGradientPrevious" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#6EE7B7" stopOpacity={0.5}/>
+                          <stop offset="95%" stopColor="#6EE7B7" stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
                       <XAxis 
                         dataKey="month" 
                         stroke="#a899df" 
                         tick={{ fill: '#a899df' }}
+                        tickLine={{ stroke: '#a899df' }}
+                        axisLine={{ stroke: '#a899df' }}
                       />
                       <YAxis 
                         stroke="#a899df" 
                         tick={{ fill: '#a899df' }}
+                        tickLine={{ stroke: '#a899df' }}
+                        axisLine={{ stroke: '#a899df' }}
                       />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                          border: '1px solid rgba(139, 92, 246, 0.3)',
-                          borderRadius: '8px',
-                          color: '#e2e8f0'
-                        }} 
+                      <ChartTooltip 
+                        content={({ active, payload }) => (
+                          active && payload?.length ? (
+                            <div className="p-2 bg-space-navy border border-purple-500/30 rounded-lg shadow-xl backdrop-blur-sm">
+                              <p className="font-medium text-white mb-1">{payload[0].payload.month}</p>
+                              {payload.map((entry, index) => (
+                                <div key={`tooltip-${index}`} className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <div 
+                                      className="w-3 h-3 rounded-sm" 
+                                      style={{ backgroundColor: entry.color }}
+                                    />
+                                    <span className="text-gray-300">{entry.dataKey === 'newMembers' ? 'New Members' : 
+                                      entry.dataKey === 'returningMembers' ? 'Returning Members' : 'Previous Year'}</span>
+                                  </div>
+                                  <span className="font-medium text-white">{entry.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null
+                        )}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="newMembers" 
+                        stackId="1"
+                        stroke="#8B5CF6" 
+                        strokeWidth={2}
+                        fill="url(#membershipGradientNew)" 
+                        animationDuration={1500}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="returningMembers" 
+                        stackId="1"
+                        stroke="#EC4899" 
+                        strokeWidth={2}
+                        fill="url(#membershipGradientReturning)" 
+                        animationDuration={1500}
+                        animationBegin={300}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="previousYear" 
+                        stroke="#6EE7B7" 
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        dot={{ r: 4, strokeWidth: 2, fill: "#0F0C29" }}
+                        activeDot={{ r: 6, strokeWidth: 0, fill: "#6EE7B7" }}
+                        animationDuration={1500}
+                        animationBegin={600}
                       />
                       <Legend 
-                        wrapperStyle={{ color: '#e2e8f0' }}
+                        wrapperStyle={{ paddingTop: 20 }}
+                        payload={[
+                          { value: 'New Members', type: 'line', color: '#8B5CF6' },
+                          { value: 'Returning Members', type: 'line', color: '#EC4899' },
+                          { value: 'Previous Year', type: 'line', color: '#6EE7B7' }
+                        ]}
                       />
-                      <Bar 
-                        dataKey="count" 
-                        name="New Members" 
-                        fill="url(#membershipGradient)" 
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <defs>
-                        <linearGradient id="membershipGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9}/>
-                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0.6}/>
-                        </linearGradient>
-                      </defs>
-                    </RechartsBarChart>
-                  </ResponsiveContainer>
+                    </AreaChart>
+                  </ChartContainer>
                 </CardContent>
               </Card>
               
@@ -256,9 +353,38 @@ const Reports: React.FC = () => {
                   </CardTitle>
                   <CardDescription>Member distribution across clubs</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsPieChart>
+                <CardContent className="h-80 relative">
+                  <ChartContainer 
+                    className="h-full w-full"
+                    config={{
+                      main: { label: "Distribution" }
+                    }}
+                  >
+                    <PieChart>
+                      <defs>
+                        {COLORS.map((color, index) => (
+                          <radialGradient 
+                            key={`gradient-${index}`} 
+                            id={`pieGradient${index}`} 
+                            cx="50%" 
+                            cy="50%" 
+                            r="50%" 
+                            fx="50%" 
+                            fy="50%"
+                          >
+                            <stop 
+                              offset="0%" 
+                              stopColor={color} 
+                              stopOpacity={0.9}
+                            />
+                            <stop 
+                              offset="100%" 
+                              stopColor={color} 
+                              stopOpacity={0.7}
+                            />
+                          </radialGradient>
+                        ))}
+                      </defs>
                       <Pie
                         data={collaborationData}
                         cx="50%"
@@ -266,31 +392,63 @@ const Reports: React.FC = () => {
                         labelLine={false}
                         outerRadius={120}
                         innerRadius={60}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        paddingAngle={5}
                         dataKey="value"
-                        paddingAngle={3}
+                        nameKey="name"
+                        strokeWidth={2}
+                        stroke="rgba(15, 12, 41, 0.8)"
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        labelStyle={{ fill: '#fff', fontSize: 12, fontWeight: 500 }}
+                        animationDuration={1500}
+                        animationBegin={100}
+                        animationEasing="ease-out"
                       >
                         {collaborationData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={`url(#pieGradient${index})`}
+                            className="hover:opacity-80 transition-opacity duration-300"
+                          />
                         ))}
                       </Pie>
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                          border: '1px solid rgba(139, 92, 246, 0.3)',
-                          borderRadius: '8px',
-                          color: '#e2e8f0'
-                        }}
-                        formatter={(value, name) => [`${value} Members`, name]}
+                      <ChartTooltip 
+                        content={({ active, payload }) => (
+                          active && payload?.length ? (
+                            <div className="p-3 bg-space-navy border border-purple-500/30 rounded-lg shadow-xl backdrop-blur-sm">
+                              <p className="font-medium text-white mb-2 border-b border-purple-500/20 pb-1">
+                                {payload[0].name}
+                              </p>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-gray-300">Members:</span>
+                                  <span className="font-medium text-white">{payload[0].value}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-gray-300">Events:</span>
+                                  <span className="font-medium text-white">{payload[0].payload.count}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-gray-300">Engagement:</span>
+                                  <span className="font-medium text-white">{payload[0].payload.engagement}%</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-gray-300">Growth:</span>
+                                  <span className="font-medium text-green-400">+{payload[0].payload.growth}%</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null
+                        )}
                       />
                       <Legend 
-                        wrapperStyle={{ 
-                          color: '#e2e8f0',
-                          paddingTop: '20px'
-                        }} 
+                        layout="horizontal" 
+                        verticalAlign="bottom"
+                        iconType="circle"
+                        iconSize={10}
+                        wrapperStyle={{ paddingTop: 20 }}
                       />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
+                    </PieChart>
+                  </ChartContainer>
                 </CardContent>
               </Card>
             </div>
@@ -316,48 +474,50 @@ const Reports: React.FC = () => {
                     <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
                       <h3 className="text-lg font-medium text-white mb-4">Membership Growth Trend</h3>
                       <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsBarChart
+                        <ChartContainer 
+                          className="h-full w-full"
+                          config={{
+                            count: { 
+                              label: "New Members",
+                              theme: { light: "#8B5CF6", dark: "#9333EA" }
+                            }
+                          }}
+                        >
+                          <AreaChart
                             data={membershipData}
-                            margin={{
-                              top: 20,
-                              right: 30,
-                              left: 20,
-                              bottom: 5,
-                            }}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
                           >
+                            <defs>
+                              <linearGradient id="membershipTrendGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.1}/>
+                              </linearGradient>
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
                             <XAxis 
                               dataKey="month" 
                               stroke="#a899df" 
                               tick={{ fill: '#a899df' }}
+                              tickLine={{ stroke: '#a899df' }}
                             />
                             <YAxis 
                               stroke="#a899df" 
                               tick={{ fill: '#a899df' }}
+                              tickLine={{ stroke: '#a899df' }}
                             />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0'
-                              }} 
+                            <ChartTooltip 
+                              content={<ChartTooltipContent />}
                             />
-                            <Bar 
+                            <Area 
+                              type="monotone" 
                               dataKey="count" 
-                              name="New Members" 
-                              fill="url(#membershipGradient2)" 
-                              radius={[4, 4, 0, 0]}
+                              stroke="#8B5CF6" 
+                              strokeWidth={2}
+                              fill="url(#membershipTrendGradient)" 
+                              animationDuration={1500}
                             />
-                            <defs>
-                              <linearGradient id="membershipGradient2" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9}/>
-                                <stop offset="100%" stopColor="#EC4899" stopOpacity={0.6}/>
-                              </linearGradient>
-                            </defs>
-                          </RechartsBarChart>
-                        </ResponsiveContainer>
+                          </AreaChart>
+                        </ChartContainer>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-4">
                         <div className="bg-purple-500/10 p-3 rounded-lg">
@@ -374,8 +534,28 @@ const Reports: React.FC = () => {
                     <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
                       <h3 className="text-lg font-medium text-white mb-4">Member Demographics</h3>
                       <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsPieChart>
+                        <ChartContainer 
+                          className="h-full w-full"
+                          config={{
+                            main: { label: "Distribution" }
+                          }}
+                        >
+                          <PieChart>
+                            <defs>
+                              {COLORS.map((color, index) => (
+                                <linearGradient 
+                                  key={`demogradient-${index}`} 
+                                  id={`demoGradient${index}`} 
+                                  x1="0" 
+                                  y1="0" 
+                                  x2="0" 
+                                  y2="1"
+                                >
+                                  <stop offset="0%" stopColor={color} stopOpacity={0.9}/>
+                                  <stop offset="100%" stopColor={color} stopOpacity={0.7}/>
+                                </linearGradient>
+                              ))}
+                            </defs>
                             <Pie
                               data={[
                                 { name: "Computer Science", value: 42 },
@@ -388,31 +568,38 @@ const Reports: React.FC = () => {
                               cy="50%"
                               labelLine={false}
                               outerRadius={80}
+                              innerRadius={40}
+                              stroke="#0F0C29"
+                              strokeWidth={2}
+                              paddingAngle={4}
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                               dataKey="value"
-                              paddingAngle={3}
+                              animationDuration={1500}
+                              animationBegin={300}
                             >
-                              {COLORS.map((color, index) => (
-                                <Cell key={`cell-${index}`} fill={color} />
+                              {[0, 1, 2, 3, 4].map((index) => (
+                                <Cell 
+                                  key={`cell-${index}`} 
+                                  fill={`url(#demoGradient${index})`} 
+                                  className="hover:opacity-80 transition-opacity duration-300"
+                                />
                               ))}
                             </Pie>
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0'
-                              }}
+                            <ChartTooltip 
+                              content={<ChartTooltipContent />}
                             />
                             <Legend 
+                              layout="horizontal" 
+                              verticalAlign="bottom"
+                              iconType="circle"
+                              iconSize={8}
                               wrapperStyle={{ 
-                                color: '#e2e8f0',
                                 fontSize: '12px',
                                 paddingTop: '10px'
                               }} 
                             />
-                          </RechartsPieChart>
-                        </ResponsiveContainer>
+                          </PieChart>
+                        </ChartContainer>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-4">
                         <div className="bg-purple-500/10 p-3 rounded-lg">
@@ -451,8 +638,16 @@ const Reports: React.FC = () => {
                     <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
                       <h3 className="text-lg font-medium text-white mb-4">Event Participation by Club</h3>
                       <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsBarChart
+                        <ChartContainer 
+                          className="h-full w-full"
+                          config={{
+                            count: { 
+                              label: "Event Count",
+                              theme: { light: "#EC4899", dark: "#DB2777" }
+                            }
+                          }}
+                        >
+                          <AreaChart
                             data={collaborationData}
                             layout="vertical"
                             margin={{
@@ -471,15 +666,28 @@ const Reports: React.FC = () => {
                               tick={{ fill: '#a899df' }}
                               width={100}
                             />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0'
-                              }} 
+                            <ChartTooltip 
+                              content={({ active, payload }) => (
+                                active && payload?.length ? (
+                                  <div className="p-2 bg-space-navy border border-purple-500/30 rounded-lg shadow-xl backdrop-blur-sm">
+                                    <p className="font-medium text-white mb-1">{payload[0].payload.name}</p>
+                                    {payload.map((entry, index) => (
+                                      <div key={`tooltip-${index}`} className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-2">
+                                          <div 
+                                            className="w-3 h-3 rounded-sm" 
+                                            style={{ backgroundColor: entry.color }}
+                                          />
+                                          <span className="text-gray-300">{entry.dataKey === 'count' ? 'Event Count' : entry.dataKey}</span>
+                                        </div>
+                                        <span className="font-medium text-white">{entry.value}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null
+                              )}
                             />
-                            <Bar 
+                            <Area 
                               dataKey="count" 
                               name="Event Count" 
                               fill="url(#eventGradient)" 
@@ -491,16 +699,21 @@ const Reports: React.FC = () => {
                                 <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.9}/>
                               </linearGradient>
                             </defs>
-                          </RechartsBarChart>
-                        </ResponsiveContainer>
+                          </AreaChart>
+                        </ChartContainer>
                       </div>
                     </div>
 
                     <div className="bg-space-navy/30 rounded-lg p-6 backdrop-blur-sm border border-purple-500/20">
                       <h3 className="text-lg font-medium text-white mb-4">Event Attendance Statistics</h3>
                       <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsBarChart
+                        <ChartContainer 
+                          className="h-full w-full"
+                          config={{
+                            main: { label: "Attendance" }
+                          }}
+                        >
+                          <LineChart
                             data={[
                               { name: "Workshops", virtual: 120, inPerson: 85 },
                               { name: "Hackathons", virtual: 50, inPerson: 90 },
@@ -517,19 +730,32 @@ const Reports: React.FC = () => {
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
                             <XAxis dataKey="name" stroke="#a899df" tick={{ fill: '#a899df' }} />
                             <YAxis stroke="#a899df" tick={{ fill: '#a899df' }} />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'rgba(15, 23, 42, 0.8)', 
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0'
-                              }} 
+                            <ChartTooltip 
+                              content={({ active, payload }) => (
+                                active && payload?.length ? (
+                                  <div className="p-2 bg-space-navy border border-purple-500/30 rounded-lg shadow-xl backdrop-blur-sm">
+                                    <p className="font-medium text-white mb-1">{payload[0].name}</p>
+                                    {payload.map((entry, index) => (
+                                      <div key={`tooltip-${index}`} className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-2">
+                                          <div 
+                                            className="w-3 h-3 rounded-sm" 
+                                            style={{ backgroundColor: entry.color }}
+                                          />
+                                          <span className="text-gray-300">{entry.dataKey === 'virtual' ? 'Virtual' : entry.dataKey}</span>
+                                        </div>
+                                        <span className="font-medium text-white">{entry.value}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null
+                              )}
                             />
                             <Legend wrapperStyle={{ color: '#e2e8f0' }} />
-                            <Bar dataKey="virtual" name="Virtual" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="inPerson" name="In-Person" fill="#EC4899" radius={[4, 4, 0, 0]} />
-                          </RechartsBarChart>
-                        </ResponsiveContainer>
+                            <Line dataKey="virtual" name="Virtual" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                            <Line dataKey="inPerson" name="In-Person" fill="#EC4899" radius={[4, 4, 0, 0]} />
+                          </LineChart>
+                        </ChartContainer>
                       </div>
                     </div>
                   </div>
