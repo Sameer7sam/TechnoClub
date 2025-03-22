@@ -30,10 +30,10 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Updated navLinks order: Home, Membership, Collaboration, Credits, Reports
+  // Updated navLinks - Membership only shows after sign in
   const navLinks = [
     { name: 'Home', path: '/', icon: <Rocket className="h-4 w-4 mr-2" />, always: true },
-    { name: 'Membership', path: '/membership', icon: <User className="h-4 w-4 mr-2" />, always: true },
+    { name: 'Membership', path: '/membership', icon: <User className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Collaboration', path: '/collaboration', icon: <Users className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Reports', path: '/reports', icon: <BarChart className="h-4 w-4 mr-2" />, auth: true },
