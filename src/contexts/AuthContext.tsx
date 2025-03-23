@@ -92,32 +92,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   
+  console.log("AuthProvider initialized");
+  
   // Check for existing session and set up auth state listener
   useEffect(() => {
+    console.log("Setting up auth state listener");
+    
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
+      async (event, newSession) => {
+        console.log("Auth state change event:", event);
+        setSession(newSession);
         
-        if (session?.user) {
+        if (newSession?.user) {
           try {
             const { data, error } = await supabase
               .from('profiles')
               .select('*')
-              .eq('id', session.user.id)
+              .eq('id', newSession.user.id)
               .single();
             
             if (error) {
               console.error('Error fetching user profile:', error);
               // Use user metadata as fallback when profile fetch fails
-              setUser(userFromMetadata(session.user));
+              setUser(userFromMetadata(newSession.user));
             } else if (data) {
               setUser(profileToAuthUser(data));
             }
           } catch (error) {
             console.error('Error fetching user profile:', error);
             // Use user metadata as fallback
-            setUser(userFromMetadata(session.user));
+            setUser(userFromMetadata(newSession.user));
           }
         } else {
           setUser(null);
@@ -129,6 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Session found" : "No session");
       setSession(session);
       
       if (session?.user) {

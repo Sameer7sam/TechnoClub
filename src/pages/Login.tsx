@@ -72,8 +72,8 @@ const Login: React.FC = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await login(values.email, values.password, values.role);
+      console.log("Login successful, waiting for auth state to update");
       // Don't navigate here - we'll let the useEffect handle it
-      // This avoids race conditions with auth state updates
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error("Login failed. Please check your email, password, and role.");
