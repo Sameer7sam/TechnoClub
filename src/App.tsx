@@ -22,49 +22,47 @@ const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/membership" element={<Membership />} />
-                
-                {/* Protected Routes */}
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/collaboration" element={
-                  <ProtectedRoute>
-                    <Collaboration />
-                  </ProtectedRoute>
-                } />
-                <Route path="/credits" element={
-                  <ProtectedRoute>
-                    <EnhancedCredits />
-                  </ProtectedRoute>
-                } />
-                <Route path="/reports" element={
-                  <ProtectedRoute>
-                    <Reports />
-                  </ProtectedRoute>
-                } />
-                
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/membership" element={<Membership />} />
+              
+              {/* Protected Routes */}
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/collaboration" element={
+                <ProtectedRoute>
+                  <Collaboration />
+                </ProtectedRoute>
+              } />
+              <Route path="/credits" element={
+                <ProtectedRoute>
+                  <EnhancedCredits />
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              } />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </TooltipProvider>
         </AuthProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 
