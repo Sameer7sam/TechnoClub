@@ -46,10 +46,17 @@ const formSchema = z.object({
 });
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/profile';
+
+  // If already authenticated, redirect to profile
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,10 +72,11 @@ const Login: React.FC = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await login(values.email, values.password, values.role);
-      toast.success("Login successful!");
-      navigate(from, { replace: true });
-    } catch (error) {
-      toast.error("Invalid email, password, or role. Please try again.");
+      // Don't navigate here - we'll let the useEffect handle it
+      // This avoids race conditions with auth state updates
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error("Login failed. Please check your email, password, and role.");
     }
   }
 

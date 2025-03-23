@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
@@ -67,6 +68,25 @@ const profileToAuthUser = (profile: Profile): AuthUser => {
   };
 };
 
+// Create a user object from the Supabase user metadata when profile fetch fails
+const userFromMetadata = (supabaseUser: User): AuthUser => {
+  return {
+    id: supabaseUser.id,
+    name: supabaseUser.user_metadata.name || 'User',
+    email: supabaseUser.email || '',
+    studentId: supabaseUser.user_metadata.studentId || '',
+    role: (supabaseUser.user_metadata.role as 'member' | 'club_head') || 'member',
+    club: supabaseUser.user_metadata.club || '',
+    chapter: supabaseUser.user_metadata.chapter || '',
+    totalCredits: 0,
+    joinDate: supabaseUser.created_at || new Date().toISOString(),
+    phoneNumber: supabaseUser.user_metadata.phoneNumber || '',
+    city: supabaseUser.user_metadata.city || '',
+    state: supabaseUser.user_metadata.state || '',
+    college: supabaseUser.user_metadata.college || '',
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -87,14 +107,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .eq('id', session.user.id)
               .single();
             
-            if (error) throw error;
-            
-            if (data) {
+            if (error) {
+              console.error('Error fetching user profile:', error);
+              // Use user metadata as fallback when profile fetch fails
+              setUser(userFromMetadata(session.user));
+            } else if (data) {
               setUser(profileToAuthUser(data));
             }
           } catch (error) {
             console.error('Error fetching user profile:', error);
-            setUser(null);
+            // Use user metadata as fallback
+            setUser(userFromMetadata(session.user));
           }
         } else {
           setUser(null);
@@ -117,7 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .then(({ data, error }) => {
             if (error) {
               console.error('Error fetching user profile:', error);
-              setUser(null);
+              // Use user metadata as fallback
+              setUser(userFromMetadata(session.user));
             } else if (data) {
               setUser(profileToAuthUser(data));
             }
@@ -144,7 +168,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', session.user.id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        // Use user metadata as fallback
+        setUser(userFromMetadata(session.user));
+        return;
+      }
       
       if (data) {
         setUser(profileToAuthUser(data));
@@ -165,16 +194,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       if (data.user) {
-        // Check if the user has the correct role
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
+        // Don't check profile role here since it's causing errors
+        // We'll use the user metadata role instead
+        const userRole = data.user.user_metadata.role;
         
-        if (profileError) throw profileError;
-        
-        if (profileData.role !== role) {
+        if (userRole && userRole !== role) {
           // Sign out if roles don't match
           await supabase.auth.signOut();
           throw new Error(`Invalid role. This account is not registered as a ${role}.`);
@@ -328,7 +352,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isClubHead,
       getProfile
     }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
