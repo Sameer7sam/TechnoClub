@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
@@ -25,6 +24,15 @@ type AuthUser = {
   college?: string;
 };
 
+// Define event types
+export type EventData = {
+  name: string;
+  description: string;
+  date: string;
+  credits: number;
+  location: string;
+};
+
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
@@ -36,15 +44,6 @@ type AuthContextType = {
   addMemberToEvent: (eventId: string, memberId: string) => Promise<void>;
   isClubHead: () => boolean;
   getProfile: () => Promise<void>;
-};
-
-// Define event types
-type EventData = {
-  name: string;
-  description: string;
-  date: string;
-  credits: number;
-  location: string;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
