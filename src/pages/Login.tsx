@@ -27,10 +27,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LogIn, KeySquare } from 'lucide-react';
+import {
+  RadioGroup,
+  RadioGroupItem
+} from "@/components/ui/radio-group";
 
+// Define form schema with validation
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  email: z.string()
+    .email({ message: "Please enter a valid email address" })
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" }),
+  password: z.string()
+    .min(6, { message: "Password must be at least 6 characters" })
+    .refine(value => !(/\s/.test(value)), { message: "Password cannot contain whitespace" }),
+  role: z.enum(['member', 'club_head'], {
+    required_error: "Please select your role",
+  }),
 });
 
 const Login: React.FC = () => {
@@ -44,6 +56,7 @@ const Login: React.FC = () => {
     defaultValues: {
       email: "",
       password: "",
+      role: "member",
     },
   });
 
@@ -51,11 +64,11 @@ const Login: React.FC = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await login(values.email, values.password);
+      await login(values.email, values.password, values.role);
       toast.success("Login successful!");
       navigate(from, { replace: true });
     } catch (error) {
-      toast.error("Invalid email or password. Please try again.");
+      toast.error("Invalid email, password, or role. Please try again.");
     }
   }
 
@@ -114,6 +127,37 @@ const Login: React.FC = () => {
                             {...field} 
                             className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-gray-300">Login As</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-2"
+                          >
+                            <div className="flex items-center space-x-2 rounded-md border border-purple-500/20 p-3 bg-space-navy/30">
+                              <RadioGroupItem value="member" id="member" />
+                              <label htmlFor="member" className="cursor-pointer text-gray-200 flex items-center">
+                                <span className="ml-2">Club Member</span>
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2 rounded-md border border-purple-500/20 p-3 bg-space-navy/30">
+                              <RadioGroupItem value="club_head" id="club_head" />
+                              <label htmlFor="club_head" className="cursor-pointer text-gray-200 flex items-center">
+                                <span className="ml-2">Club Head</span>
+                              </label>
+                            </div>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

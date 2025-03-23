@@ -35,13 +35,26 @@ import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserPlus, GraduationCap, Building } from 'lucide-react';
 
+// Improved form schema with validation
 const formSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  studentId: z.string().min(2, { message: "Student ID is required" }),
-  phoneNumber: z.string().min(10, { message: "Please enter a valid phone number" }),
+  fullName: z.string()
+    .min(2, { message: "Full name must be at least 2 characters" })
+    .refine(val => val.trim() === val, { message: "Full name cannot have leading/trailing whitespace" }),
+  email: z.string()
+    .email({ message: "Please enter a valid email address" })
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" }),
+  studentId: z.string()
+    .min(2, { message: "Student ID is required" })
+    .refine(value => !(/\s/.test(value)), { message: "Student ID cannot contain whitespace" }),
+  phoneNumber: z.string()
+    .min(10, { message: "Phone number must have at least 10 digits" })
+    .max(10, { message: "Phone number cannot have more than 10 digits" })
+    .regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number" })
+    .refine(value => !(/\s/.test(value)), { message: "Phone number cannot contain whitespace" }),
   year: z.string({ required_error: "Please select your year of study" }),
-  major: z.string().min(2, { message: "Please enter your major" }),
+  major: z.string()
+    .min(2, { message: "Please enter your major" })
+    .refine(val => val.trim() === val, { message: "Major cannot have leading/trailing whitespace" }),
   club: z.string({ required_error: "Please select a club" }),
   chapter: z.string({ required_error: "Please select a chapter" }),
   skills: z.string().optional(),

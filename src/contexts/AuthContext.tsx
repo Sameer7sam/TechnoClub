@@ -7,7 +7,7 @@ type User = {
   name: string;
   email: string;
   studentId: string;
-  role: 'member' | 'admin';
+  role: 'member' | 'club_head' | 'admin';
   club: string;
   chapter: string;
   totalCredits: number;
@@ -22,9 +22,22 @@ type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role: 'member' | 'club_head') => Promise<void>;
   logout: () => void;
   register: (userData: Omit<User, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => Promise<void>;
+  giveCredits: (recipientId: string, amount: number, reason: string) => Promise<void>;
+  createEvent: (eventData: EventData) => Promise<void>;
+  addMemberToEvent: (eventId: string, memberId: string) => Promise<void>;
+  isClubHead: () => boolean;
+};
+
+// Define event types
+type EventData = {
+  name: string;
+  description: string;
+  date: string;
+  credits: number;
+  location: string;
 };
 
 // Mock user data for demonstration
@@ -51,7 +64,7 @@ const MOCK_USERS = [
     email: 'sam@example.com',
     password: 'password123',
     studentId: 'B87654321',
-    role: 'admin' as const,
+    role: 'club_head' as const,
     club: 'ACM',
     chapter: 'SIGAI',
     totalCredits: 720,
@@ -62,6 +75,9 @@ const MOCK_USERS = [
     college: 'MIT',
   }
 ];
+
+// Mock events data
+const MOCK_EVENTS: Record<string, any> = {};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -76,17 +92,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Mock login implementation
-  const login = async (email: string, password: string) => {
+  // Mock login implementation with role selection
+  const login = async (email: string, password: string, role: 'member' | 'club_head') => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const foundUser = MOCK_USERS.find(
-      user => user.email === email && user.password === password
+      user => user.email === email && user.password === password && user.role === role
     );
     
     if (!foundUser) {
-      throw new Error('Invalid credentials');
+      throw new Error('Invalid credentials or role');
     }
     
     // Remove password before storing user
@@ -95,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('user', JSON.stringify(userWithoutPassword));
   };
 
-  // Mock registration implementation
+  // Mock registration implementation with role selection
   const register = async (userData: Omit<User, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -119,8 +135,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('user');
   };
 
+  // Function to check if the current user is a club head
+  const isClubHead = () => {
+    return user?.role === 'club_head';
+  };
+
+  // Club head only functions
+  const giveCredits = async (recipientId: string, amount: number, reason: string) => {
+    if (!isClubHead()) {
+      throw new Error('Only club heads can give credits');
+    }
+    
+    // In a real app, this would update the database
+    // For this mock implementation, we'll log the action
+    console.log(`Credits given: ${amount} to user ${recipientId} for ${reason}`);
+    return Promise.resolve();
+  };
+
+  const createEvent = async (eventData: EventData) => {
+    if (!isClubHead()) {
+      throw new Error('Only club heads can create events');
+    }
+    
+    // In a real app, this would add to the database
+    const eventId = Math.random().toString(36).substring(2, 9);
+    MOCK_EVENTS[eventId] = {
+      ...eventData,
+      id: eventId,
+      createdBy: user?.id,
+      members: []
+    };
+    
+    console.log('Event created:', MOCK_EVENTS[eventId]);
+    return Promise.resolve();
+  };
+
+  const addMemberToEvent = async (eventId: string, memberId: string) => {
+    if (!isClubHead()) {
+      throw new Error('Only club heads can add members to events');
+    }
+    
+    if (!MOCK_EVENTS[eventId]) {
+      throw new Error('Event not found');
+    }
+    
+    // Add member to event
+    MOCK_EVENTS[eventId].members.push(memberId);
+    console.log(`Member ${memberId} added to event ${eventId}`);
+    return Promise.resolve();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, register }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated: !!user, 
+      login, 
+      logout, 
+      register, 
+      giveCredits, 
+      createEvent, 
+      addMemberToEvent, 
+      isClubHead 
+    }}>
       {children}
     </AuthContext.Provider>
   );

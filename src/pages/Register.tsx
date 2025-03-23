@@ -27,16 +27,41 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { UserPlus } from 'lucide-react';
+import {
+  RadioGroup,
+  RadioGroupItem
+} from "@/components/ui/radio-group";
 
+// Improved form schema with validation
 const formSchema = z.object({
-  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
-  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  phoneNumber: z.string().min(10, { message: "Please enter a valid phone number" }),
-  city: z.string().min(2, { message: "City is required" }),
-  state: z.string().min(2, { message: "State is required" }),
-  college: z.string().min(2, { message: "College name is required" }),
+  firstName: z.string()
+    .min(2, { message: "First name must be at least 2 characters" })
+    .refine(value => !(/\s/.test(value)), { message: "First name cannot contain whitespace" }),
+  lastName: z.string()
+    .min(2, { message: "Last name must be at least 2 characters" })
+    .refine(value => !(/\s/.test(value)), { message: "Last name cannot contain whitespace" }),
+  email: z.string()
+    .email({ message: "Please enter a valid email address" })
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" }),
+  password: z.string()
+    .min(6, { message: "Password must be at least 6 characters" })
+    .refine(value => !(/\s/.test(value)), { message: "Password cannot contain whitespace" }),
+  phoneNumber: z.string()
+    .min(10, { message: "Phone number must have at least 10 digits" })
+    .max(10, { message: "Phone number cannot have more than 10 digits" })
+    .regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number" })
+    .refine(value => !(/\s/.test(value)), { message: "Phone number cannot contain whitespace" }),
+  city: z.string()
+    .min(2, { message: "City is required" })
+    .refine(value => !(/\s/.test(value.trim())), { message: "City cannot contain leading/trailing whitespace" }),
+  state: z.string()
+    .min(2, { message: "State is required" })
+    .refine(value => !(/\s/.test(value.trim())), { message: "State cannot contain leading/trailing whitespace" }),
+  college: z.string()
+    .min(2, { message: "College name is required" }),
+  role: z.enum(['member', 'club_head'], {
+    required_error: "Please select your role",
+  }),
 });
 
 const Register: React.FC = () => {
@@ -54,6 +79,7 @@ const Register: React.FC = () => {
       city: "",
       state: "",
       college: "",
+      role: "member",
     },
   });
 
@@ -69,7 +95,7 @@ const Register: React.FC = () => {
         email: values.email,
         password: values.password,
         studentId: "TBD", // Default value as we're not collecting this now
-        role: 'member',
+        role: values.role,
         club: "Unassigned", // Default value as we're not collecting this now
         chapter: "Unassigned", // Default value as we're not collecting this now
         // These fields aren't in the User type but we'll pass them anyway
@@ -253,6 +279,37 @@ const Register: React.FC = () => {
                             {...field} 
                             className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-gray-300">Register As</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-2"
+                          >
+                            <div className="flex items-center space-x-2 rounded-md border border-purple-500/20 p-3 bg-space-navy/30">
+                              <RadioGroupItem value="member" id="r-member" />
+                              <label htmlFor="r-member" className="cursor-pointer text-gray-200 flex items-center">
+                                <span className="ml-2">Club Member</span>
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2 rounded-md border border-purple-500/20 p-3 bg-space-navy/30">
+                              <RadioGroupItem value="club_head" id="r-club_head" />
+                              <label htmlFor="r-club_head" className="cursor-pointer text-gray-200 flex items-center">
+                                <span className="ml-2">Club Head</span>
+                              </label>
+                            </div>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
