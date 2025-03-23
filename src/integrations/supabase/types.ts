@@ -9,13 +9,168 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      credit_transactions: {
+        Row: {
+          amount: number
+          awarded_by: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          reason: string
+          recipient_id: string
+        }
+        Insert: {
+          amount: number
+          awarded_by?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          reason: string
+          recipient_id: string
+        }
+        Update: {
+          amount?: number
+          awarded_by?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          reason?: string
+          recipient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_participants: {
+        Row: {
+          attended: boolean | null
+          event_id: string
+          id: string
+          registered_at: string
+          user_id: string
+        }
+        Insert: {
+          attended?: boolean | null
+          event_id: string
+          id?: string
+          registered_at?: string
+          user_id: string
+        }
+        Update: {
+          attended?: boolean | null
+          event_id?: string
+          id?: string
+          registered_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string
+          credits: number
+          date: string
+          description: string
+          id: string
+          location: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          credits: number
+          date: string
+          description: string
+          id?: string
+          location: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          credits?: number
+          date?: string
+          description?: string
+          id?: string
+          location?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          chapter: string | null
+          city: string | null
+          club: string | null
+          college: string | null
+          email: string
+          id: string
+          join_date: string
+          name: string
+          phone_number: string | null
+          role: string
+          state: string | null
+          student_id: string | null
+          total_credits: number
+        }
+        Insert: {
+          chapter?: string | null
+          city?: string | null
+          club?: string | null
+          college?: string | null
+          email: string
+          id: string
+          join_date?: string
+          name: string
+          phone_number?: string | null
+          role: string
+          state?: string | null
+          student_id?: string | null
+          total_credits?: number
+        }
+        Update: {
+          chapter?: string | null
+          city?: string | null
+          club?: string | null
+          college?: string | null
+          email?: string
+          id?: string
+          join_date?: string
+          name?: string
+          phone_number?: string | null
+          role?: string
+          state?: string | null
+          student_id?: string | null
+          total_credits?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_club_head: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,7 +26,8 @@ import {
 } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { CreditCard, Calendar, Users, Award } from 'lucide-react';
+import { CreditCard, Calendar, Users, Award, Search } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Credit assignment form schema
 const creditFormSchema = z.object({
@@ -50,13 +51,35 @@ const eventFormSchema = z.object({
 
 // Member addition form schema
 const memberFormSchema = z.object({
-  eventId: z.string().min(1, { message: "Please enter event ID" }),
+  eventId: z.string().min(1, { message: "Please select an event" }),
   memberId: z.string().min(1, { message: "Please enter member ID" }),
 });
+
+// Member search schema
+const searchFormSchema = z.object({
+  searchTerm: z.string().min(1, { message: "Please enter a search term" }),
+});
+
+type Member = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+type Event = {
+  id: string;
+  name: string;
+  date: string;
+};
 
 const ClubHeadTools: React.FC = () => {
   const { giveCredits, createEvent, addMemberToEvent } = useAuth();
   const [activeTab, setActiveTab] = useState("credits");
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
 
   // Credit form
   const creditForm = useForm<z.infer<typeof creditFormSchema>>({
@@ -89,25 +112,62 @@ const ClubHeadTools: React.FC = () => {
     },
   });
 
+  // Search form
+  const searchForm = useForm<z.infer<typeof searchFormSchema>>({
+    resolver: zodResolver(searchFormSchema),
+    defaultValues: {
+      searchTerm: "",
+    },
+  });
+
+  // Fetch events when component mounts
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoadingEvents(true);
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('id, name, date')
+          .order('date', { ascending: false });
+        
+        if (error) throw error;
+        
+        setEvents(data || []);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        toast.error('Failed to load events');
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
   // Handle credit submission
   const onCreditSubmit = async (values: z.infer<typeof creditFormSchema>) => {
     try {
       await giveCredits(values.memberId, values.creditAmount, values.reason);
-      toast.success("Credits assigned successfully!");
       creditForm.reset();
     } catch (error) {
-      toast.error("Failed to assign credits. Try again.");
+      // Error is already handled in giveCredits
     }
   };
 
   // Handle event creation
   const onEventSubmit = async (values: z.infer<typeof eventFormSchema>) => {
     try {
-      await createEvent(values);
-      toast.success("Event created successfully!");
+      const eventId = await createEvent(values);
+      
+      // Add the new event to the events list
+      setEvents(prev => [
+        { id: eventId, name: values.name, date: values.date },
+        ...prev
+      ]);
+      
       eventForm.reset();
     } catch (error) {
-      toast.error("Failed to create event. Try again.");
+      // Error is already handled in createEvent
     }
   };
 
@@ -115,10 +175,42 @@ const ClubHeadTools: React.FC = () => {
   const onMemberSubmit = async (values: z.infer<typeof memberFormSchema>) => {
     try {
       await addMemberToEvent(values.eventId, values.memberId);
-      toast.success("Member added to event successfully!");
       memberForm.reset();
     } catch (error) {
-      toast.error("Failed to add member to event. Try again.");
+      // Error is already handled in addMemberToEvent
+    }
+  };
+
+  // Handle member search
+  const onSearchSubmit = async (values: z.infer<typeof searchFormSchema>) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, email, role')
+        .or(`name.ilike.%${values.searchTerm}%,email.ilike.%${values.searchTerm}%`)
+        .limit(10);
+      
+      if (error) throw error;
+      
+      setMembers(data || []);
+      
+      if (data.length === 0) {
+        toast.info('No members found matching your search');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to search members');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle selecting a member
+  const selectMember = (memberId: string) => {
+    if (activeTab === 'credits') {
+      creditForm.setValue('memberId', memberId);
+    } else if (activeTab === 'members') {
+      memberForm.setValue('memberId', memberId);
     }
   };
 
@@ -131,6 +223,69 @@ const ClubHeadTools: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
+        <div className="mb-6">
+          <Form {...searchForm}>
+            <form onSubmit={searchForm.handleSubmit(onSearchSubmit)} className="flex space-x-2">
+              <FormField
+                control={searchForm.control}
+                name="searchTerm"
+                render={({ field }) => (
+                  <FormItem className="flex-grow">
+                    <div className="flex space-x-2">
+                      <FormControl>
+                        <Input 
+                          placeholder="Search members by name or email" 
+                          {...field} 
+                          className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
+                        />
+                      </FormControl>
+                      <Button 
+                        type="submit" 
+                        disabled={loading}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      >
+                        <Search className="h-4 w-4 mr-1" />
+                        Search
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+          
+          {members.length > 0 && (
+            <div className="mt-4 p-4 bg-gray-800/40 rounded-lg max-h-60 overflow-y-auto">
+              <h3 className="text-sm font-medium text-gray-300 mb-2">Search Results</h3>
+              <div className="space-y-2">
+                {members.map(member => (
+                  <div 
+                    key={member.id} 
+                    className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded cursor-pointer"
+                    onClick={() => selectMember(member.id)}
+                  >
+                    <div>
+                      <p className="font-medium text-white">{member.name}</p>
+                      <p className="text-xs text-gray-400">{member.email} • {member.role}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectMember(member.id);
+                      }}
+                    >
+                      Select
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 mb-6">
             <TabsTrigger value="credits" className="flex items-center gap-2">
@@ -164,6 +319,9 @@ const ClubHeadTools: React.FC = () => {
                           className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                         />
                       </FormControl>
+                      <FormDescription>
+                        Use the search above to find and select a member
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -334,14 +492,22 @@ const ClubHeadTools: React.FC = () => {
                   name="eventId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Event ID</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter event ID" 
-                          {...field} 
-                          className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
-                        />
-                      </FormControl>
+                      <FormLabel className="text-gray-300">Event</FormLabel>
+                      <select
+                        {...field}
+                        className="w-full bg-space-navy/50 border border-purple-500/20 focus:border-purple-500/50 rounded-md p-2 text-white"
+                      >
+                        <option value="">Select an event</option>
+                        {loadingEvents ? (
+                          <option disabled>Loading events...</option>
+                        ) : (
+                          events.map(event => (
+                            <option key={event.id} value={event.id}>
+                              {event.name} ({new Date(event.date).toLocaleDateString()})
+                            </option>
+                          ))
+                        )}
+                      </select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -360,6 +526,9 @@ const ClubHeadTools: React.FC = () => {
                           className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                         />
                       </FormControl>
+                      <FormDescription>
+                        Use the search above to find and select a member
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

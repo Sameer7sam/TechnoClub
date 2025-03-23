@@ -1,11 +1,15 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ClubHeadTools from '@/components/ClubHeadTools';
 
-// This is a placeholder implementation. In a real app, this would come from a proper backend.
 const Profile: React.FC = () => {
-  const { user, isClubHead } = useAuth();
+  const { user, isClubHead, getProfile } = useAuth();
+
+  // Fetch the latest profile data when the component mounts
+  useEffect(() => {
+    getProfile();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -19,7 +23,20 @@ const Profile: React.FC = () => {
           <p className="text-gray-600 mb-1">Club: {user.club}</p>
           <p className="text-gray-600 mb-1">Chapter: {user.chapter}</p>
           <p className="text-gray-600 mb-1">Total Credits: {user.totalCredits}</p>
-          <p className="text-gray-600 mb-4">Joined: {user.joinDate}</p>
+          <p className="text-gray-600 mb-4">Joined: {new Date(user.joinDate).toLocaleDateString()}</p>
+          
+          {user.phoneNumber && (
+            <p className="text-gray-600 mb-1">Phone: {user.phoneNumber}</p>
+          )}
+          {user.city && (
+            <p className="text-gray-600 mb-1">City: {user.city}</p>
+          )}
+          {user.state && (
+            <p className="text-gray-600 mb-1">State: {user.state}</p>
+          )}
+          {user.college && (
+            <p className="text-gray-600 mb-1">College: {user.college}</p>
+          )}
         </div>
       )}
       

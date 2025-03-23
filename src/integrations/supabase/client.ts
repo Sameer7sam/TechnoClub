@@ -1,0 +1,57 @@
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://tkrbxuxenksffwbcfzfz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrcmJ4dXhlbmtzZmZ3YmNmemZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NDU5MjEsImV4cCI6MjA1ODIyMTkyMX0.EZgBj1NSjxO_SpnmlVI3RjrDjbKFvER9TQ9vxrvRkLY';
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    storageKey: 'ieee-app-auth',
+  },
+});
+
+export type Tables = {
+  events: {
+    id: string;
+    name: string;
+    description: string;
+    date: string;
+    location: string;
+    credits: number;
+    created_by: string;
+    created_at: string;
+  };
+  event_participants: {
+    id: string;
+    event_id: string;
+    user_id: string;
+    registered_at: string;
+    attended: boolean;
+  };
+  credit_transactions: {
+    id: string;
+    recipient_id: string;
+    awarded_by: string | null;
+    amount: number;
+    reason: string;
+    event_id: string | null;
+    created_at: string;
+  };
+  profiles: {
+    id: string;
+    name: string;
+    email: string;
+    student_id: string | null;
+    role: string;
+    club: string | null;
+    chapter: string | null;
+    total_credits: number;
+    join_date: string;
+    phone_number: string | null;
+    city: string | null;
+    state: string | null;
+    college: string | null;
+  };
+};
