@@ -8,23 +8,27 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const location = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isAuthenticated === false) {
       console.log('User not authenticated, redirecting to login');
-    } else {
+    } else if (isAuthenticated === true) {
       console.log('User authenticated, accessing protected route', user?.name);
     }
   }, [isAuthenticated, user]);
 
-  // Show loading state while auth is being checked
+  // If isAuthenticated is undefined, we're still loading
   if (isAuthenticated === undefined) {
     return (
-      <div className="flex items-center justify-center h-screen bg-space-black">
-        <div className="animate-spin h-10 w-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin h-12 w-12 border-4 border-purple-500 rounded-full border-t-transparent mb-4"></div>
+          <div className="text-purple-300 text-sm">Verifying authentication...</div>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  // If we know the user is not authenticated, redirect to login
+  if (isAuthenticated === false) {
     // Redirect to login if not authenticated, preserving the intended destination
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
