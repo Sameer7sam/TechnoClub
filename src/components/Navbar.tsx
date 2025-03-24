@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -30,7 +29,6 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Updated navLinks - Membership only shows after sign in
   const navLinks = [
     { name: 'Home', path: '/', icon: <Rocket className="h-4 w-4 mr-2" />, always: true },
     { name: 'Membership', path: '/membership', icon: <User className="h-4 w-4 mr-2" />, auth: true },
@@ -47,12 +45,16 @@ const Navbar: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    closeMenu();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      closeMenu();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string = '') => {
     return name
       .split(' ')
       .map(part => part[0])
@@ -112,9 +114,9 @@ const Navbar: React.FC = () => {
                 <DropdownMenuContent className="w-56 glass-card border-purple-500/20" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name}</p>
+                      <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
+                        {user?.email || ''}
                       </p>
                     </div>
                   </DropdownMenuLabel>
@@ -193,8 +195,8 @@ const Navbar: React.FC = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium text-sm">{user?.name}</p>
-                        <p className="text-xs text-gray-400">{user?.email}</p>
+                        <p className="font-medium text-sm">{user?.name || 'User'}</p>
+                        <p className="text-xs text-gray-400">{user?.email || ''}</p>
                       </div>
                     </div>
                   )}

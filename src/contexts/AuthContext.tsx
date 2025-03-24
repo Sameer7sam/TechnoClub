@@ -64,7 +64,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log("Setting up auth state listener");
     
-    // Set up auth state listener first
+    const fetchInitialSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", initialSession ? "Session found" : "No session");
+        setSession(initialSession);
+        
+        if (initialSession?.user) {
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', initialSession.user.id)
+              .single();
+            
+            if (error) {
+              console.error('Error fetching user profile:', error);
+              // Use user metadata as fallback
+              setUser(userFromMetadata(initialSession.user));
+            } else if (data) {
+              setUser(profileToAuthUser(data));
+            }
+          } catch (error) {
+            console.error('Error fetching initial user profile:', error);
+            setUser(userFromMetadata(initialSession.user));
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchInitialSession();
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log("Auth state change event:", event);
@@ -79,50 +114,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .single();
             
             if (error) {
-              console.error('Error fetching user profile:', error);
-              // Use user metadata as fallback when profile fetch fails
+              console.error('Error fetching user profile on auth change:', error);
+              // Use user metadata as fallback
               setUser(userFromMetadata(newSession.user));
             } else if (data) {
               setUser(profileToAuthUser(data));
             }
           } catch (error) {
-            console.error('Error fetching user profile:', error);
-            // Use user metadata as fallback
+            console.error('Error fetching user profile on auth change:', error);
             setUser(userFromMetadata(newSession.user));
           }
         } else {
           setUser(null);
         }
-        
-        setLoading(false);
       }
     );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session ? "Session found" : "No session");
-      setSession(session);
-      
-      if (session?.user) {
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data, error }) => {
-            if (error) {
-              console.error('Error fetching user profile:', error);
-              // Use user metadata as fallback
-              setUser(userFromMetadata(session.user));
-            } else if (data) {
-              setUser(profileToAuthUser(data));
-            }
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
 
     return () => {
       subscription.unsubscribe();

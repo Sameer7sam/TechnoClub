@@ -56,7 +56,8 @@ const Index: React.FC = () => {
 
     const observer = new IntersectionObserver(handleIntersect, observerOptions);
     
-    document.querySelectorAll('.fade-in-section').forEach((section) => {
+    const elements = document.querySelectorAll('.fade-in-section');
+    elements.forEach((section) => {
       observer.observe(section);
     });
 
