@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { LogIn, KeySquare } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import {
   RadioGroup,
   RadioGroupItem
@@ -53,7 +53,9 @@ const Login: React.FC = () => {
 
   // If already authenticated, redirect to profile
   React.useEffect(() => {
+    console.log("Login component mounted, isAuthenticated:", isAuthenticated);
     if (isAuthenticated) {
+      console.log("User already authenticated, redirecting to:", from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
@@ -71,6 +73,7 @@ const Login: React.FC = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      console.log("Attempting to login with:", values.email, "as", values.role);
       await login(values.email, values.password, values.role);
       console.log("Login successful, waiting for auth state to update");
       // Don't navigate here - we'll let the useEffect handle it
