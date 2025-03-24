@@ -30,7 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { CalendarIcon, Users, Award, CalendarPlus } from 'lucide-react';
 import { toast } from 'sonner';
-import { EventData } from '@/contexts/AuthContext';
+import { EventData } from '@/utils/authUtils';
 
 // Define schema for the credits form
 const creditsFormSchema = z.object({
