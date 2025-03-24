@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Fetch the latest profile data
   const getProfile = async () => {
+    console.log("getProfile called, session:", session?.user?.id);
     if (!session?.user) return;
     
     try {
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (data) {
+        console.log("Profile data fetched:", data);
         setUser(profileToAuthUser(data));
       }
     } catch (error) {
@@ -64,48 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log("Setting up auth state listener");
     
-    const fetchInitialSession = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log("Initial session check:", initialSession ? "Session found" : "No session");
-        setSession(initialSession);
-        
-        if (initialSession?.user) {
-          try {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', initialSession.user.id)
-              .single();
-            
-            if (error) {
-              console.error('Error fetching user profile:', error);
-              // Use user metadata as fallback
-              setUser(userFromMetadata(initialSession.user));
-            } else if (data) {
-              setUser(profileToAuthUser(data));
-            }
-          } catch (error) {
-            console.error('Error fetching initial user profile:', error);
-            setUser(userFromMetadata(initialSession.user));
-          }
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchInitialSession();
-    
-    // Set up auth state listener
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log("Auth state change event:", event);
         setSession(newSession);
         
         if (newSession?.user) {
+          console.log("User authenticated:", newSession.user.email);
           try {
             const { data, error } = await supabase
               .from('profiles')
@@ -118,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Use user metadata as fallback
               setUser(userFromMetadata(newSession.user));
             } else if (data) {
+              console.log("Profile data loaded:", data);
               setUser(profileToAuthUser(data));
             }
           } catch (error) {
@@ -125,15 +94,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userFromMetadata(newSession.user));
           }
         } else {
+          console.log("User logged out or no session");
           setUser(null);
         }
+        
+        setLoading(false);
       }
     );
+
+    // THEN check for existing session
+    const fetchInitialSession = async () => {
+      try {
+        console.log("Checking for existing session");
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", initialSession ? "Session found" : "No session");
+        
+        if (initialSession) {
+          setSession(initialSession);
+          
+          if (initialSession.user) {
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', initialSession.user.id)
+                .single();
+              
+              if (error) {
+                console.error('Error fetching initial user profile:', error);
+                // Use user metadata as fallback
+                setUser(userFromMetadata(initialSession.user));
+              } else if (data) {
+                console.log("Initial profile data loaded:", data);
+                setUser(profileToAuthUser(data));
+              }
+            } catch (error) {
+              console.error('Error fetching initial user profile:', error);
+              setUser(userFromMetadata(initialSession.user));
+            }
+          }
+        } else {
+          console.log("No initial session found");
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchInitialSession();
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log("Auth state updated:", { 
+      authenticated: !!user,
+      loading,
+      sessionExists: !!session
+    });
+  }, [user, loading, session]);
+
+  // Return a loading state while initializing
+  if (loading) {
+    console.log("Auth still loading, showing loading state");
+    return (
+      <div className="flex items-center justify-center h-screen bg-space-black">
+        <div className="animate-spin h-10 w-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ 
@@ -148,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isClubHead,
       getProfile
     }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

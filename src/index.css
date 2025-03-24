@@ -182,3 +182,27 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Stars background */
+.stars-bg {
+  background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 1%);
+  background-size: 25px 25px;
+}
+
+/* Grid pattern background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(100, 65, 165, 0.1) 1px, transparent 1px),
+    linear-gradient(to right, rgba(100, 65, 165, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Cosmic glow effect */
+.cosmic-glow {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.cosmic-glow:hover {
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+}

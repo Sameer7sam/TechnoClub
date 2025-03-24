@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,6 +31,7 @@ import {
   RadioGroup,
   RadioGroupItem
 } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Define form schema with validation
 const formSchema = z.object({
@@ -50,9 +51,12 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/profile';
+  const [error, setError] = React.useState<string | null>(null);
+
+  console.log("Login page rendered, authenticated:", isAuthenticated);
 
   // If already authenticated, redirect to profile
-  React.useEffect(() => {
+  useEffect(() => {
     console.log("Login component mounted, isAuthenticated:", isAuthenticated);
     if (isAuthenticated) {
       console.log("User already authenticated, redirecting to:", from);
@@ -72,6 +76,7 @@ const Login: React.FC = () => {
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setError(null); // Clear previous errors
     try {
       console.log("Attempting to login with:", values.email, "as", values.role);
       await login(values.email, values.password, values.role);
@@ -79,6 +84,7 @@ const Login: React.FC = () => {
       // Don't navigate here - we'll let the useEffect handle it
     } catch (error: any) {
       console.error("Login error:", error);
+      setError(error.message || "Login failed. Please check your email, password, and role.");
       toast.error("Login failed. Please check your email, password, and role.");
     }
   }
@@ -89,22 +95,24 @@ const Login: React.FC = () => {
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-space-black via-space-deepBlue to-space-navy opacity-80"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_20%,rgba(120,50,255,0.1),transparent)]"></div>
-        <div className="absolute inset-0 stars-bg opacity-40"></div>
-        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-purple-500/5 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-1/4 w-96 h-96 rounded-full bg-pink-500/5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
       </div>
       
       <Navbar />
       
       <main className="flex-grow py-24 relative z-10">
         <div className="container mx-auto px-4 md:px-6">
-          <Card className="max-w-md mx-auto glass-card cosmic-glow border-purple-500/20">
+          <Card className="max-w-md mx-auto border-purple-500/20">
             <CardHeader className="bg-gradient-to-r from-space-navy to-space-deepBlue border-b border-purple-500/20">
               <CardTitle className="text-2xl text-gradient">Login</CardTitle>
               <CardDescription className="text-purple-300/80">Access your TechnoClubs account</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
+              {error && (
+                <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/20 text-red-300">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
@@ -177,7 +185,7 @@ const Login: React.FC = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 button-shine"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

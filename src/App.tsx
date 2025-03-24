@@ -17,22 +17,32 @@ import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
-// Create a new QueryClient instance with error handling
+// Create a new QueryClient instance with error handling and debug options
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      onError: (error) => {
+        console.error('Query error:', error);
+      },
     },
   },
 });
 
 const App = () => {
+  console.log("App component rendered");
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
           <TooltipProvider>
+            {/* Debug indicator - will be visible if rendering is working */}
+            <div className="fixed bottom-2 right-2 z-50 bg-purple-600 text-white text-xs px-2 py-1 rounded-full opacity-50 hover:opacity-100">
+              App v1.0
+            </div>
+            
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
