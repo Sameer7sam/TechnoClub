@@ -7,11 +7,6 @@ export const useAuthOperations = () => {
   // Login with email/password
   const login = async (email: string, password: string, role: 'member' | 'club_head' | 'admin') => {
     try {
-      // For admin, hardcode the specific login credentials
-      if (role === 'admin' && email !== 'admin@gmail.com') {
-        throw new Error('Invalid admin credentials');
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -20,16 +15,36 @@ export const useAuthOperations = () => {
       if (error) throw error;
       
       if (data.user) {
-        // Special case for admin login
-        if (role === 'admin' && email === 'admin@gmail.com') {
+        // For admin login, check admin flag in profiles
+        if (role === 'admin') {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('admin')
+            .eq('id', data.user.id)
+            .single();
+            
+          if (profileError) throw new Error('Error verifying admin status');
+          
+          if (!profileData?.admin) {
+            // Sign out if not an admin
+            await supabase.auth.signOut();
+            throw new Error('This account does not have admin privileges');
+          }
+          
           toast.success(`Welcome back, Admin!`);
           return;
         }
 
-        // For non-admin users, check role
-        const userRole = data.user.user_metadata.role;
+        // For non-admin users, check role in profiles
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) throw new Error('Error verifying user role');
         
-        if (userRole && userRole !== role) {
+        if (profileData?.role !== role) {
           // Sign out if roles don't match
           await supabase.auth.signOut();
           throw new Error(`Invalid role. This account is not registered as a ${role}.`);
@@ -47,11 +62,7 @@ export const useAuthOperations = () => {
   // Register new user
   const register = async (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => {
     try {
-      // Prevent registering as admin
-      if (userData.role === 'admin') {
-        throw new Error('Admin accounts can only be created by system administrators');
-      }
-
+      // Always register as a member regardless of selected role
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -59,9 +70,7 @@ export const useAuthOperations = () => {
           data: {
             name: userData.name,
             studentId: userData.studentId,
-            role: userData.role,
-            club: userData.club,
-            chapter: userData.chapter,
+            role: 'member', // Always set as member initially
             phoneNumber: userData.phoneNumber,
             city: userData.city,
             state: userData.state,
@@ -72,7 +81,7 @@ export const useAuthOperations = () => {
       
       if (error) throw error;
       
-      toast.success('Registration successful!');
+      toast.success('Registration successful! Please complete your membership profile to unlock features.');
     } catch (error: any) {
       toast.error(error.message || 'Failed to register');
       throw error;

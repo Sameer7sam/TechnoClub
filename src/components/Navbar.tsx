@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Users, Calendar, Award, BarChart, User, Rocket, Star } from 'lucide-react';
+import { Menu, X, Users, Calendar, Award, BarChart, User, Rocket, Star, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -35,6 +35,12 @@ const Navbar: React.FC = () => {
     { name: 'Collaboration', path: '/collaboration', icon: <Users className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Reports', path: '/reports', icon: <BarChart className="h-4 w-4 mr-2" />, auth: true },
+    {
+      label: "Manage Clubs",
+      href: "/manage-clubs",
+      icon: <Building2 className="h-4 w-4" />,
+      adminOnly: true,
+    },
   ];
 
   const filteredNavLinks = navLinks.filter(link => 
