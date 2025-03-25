@@ -9,6 +9,7 @@ import { useUserOperations } from '@/hooks/useUserOperations';
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  session: Session | null;
   login: (email: string, password: string, role: 'member' | 'club_head' | 'admin') => Promise<void>;
   logout: () => Promise<void>;
   register: (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => Promise<void>;
@@ -114,6 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           console.log("No initial session found");
           setUser(null);
+          setSession(null);
         }
         
         console.log("Setting up auth state change listener");
@@ -193,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{ 
       user, 
       isAuthenticated: !!user, 
+      session,
       login, 
       logout, 
       register, 

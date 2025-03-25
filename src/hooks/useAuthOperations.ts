@@ -23,10 +23,14 @@ export const useAuthOperations = () => {
             .eq('id', data.user.id)
             .single();
             
-          if (profileError) throw new Error('Error verifying admin status');
+          if (profileError) {
+            console.error("Admin verification error:", profileError);
+            throw new Error('Error verifying admin status');
+          }
           
           if (!profileData?.admin) {
             // Sign out if not an admin
+            console.error("Not an admin account");
             await supabase.auth.signOut();
             throw new Error('This account does not have admin privileges');
           }
@@ -42,10 +46,14 @@ export const useAuthOperations = () => {
           .eq('id', data.user.id)
           .single();
           
-        if (profileError) throw new Error('Error verifying user role');
+        if (profileError) {
+          console.error("Role verification error:", profileError);
+          throw new Error('Error verifying user role');
+        }
         
         if (profileData?.role !== role) {
           // Sign out if roles don't match
+          console.error(`Role mismatch: expected ${role}, got ${profileData?.role}`);
           await supabase.auth.signOut();
           throw new Error(`Invalid role. This account is not registered as a ${role}.`);
         }
@@ -62,6 +70,11 @@ export const useAuthOperations = () => {
   // Register new user
   const register = async (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => {
     try {
+      console.log("Registering new user with data:", {
+        ...userData,
+        password: '[REDACTED]'
+      });
+      
       // Always register as a member regardless of selected role
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
@@ -79,10 +92,15 @@ export const useAuthOperations = () => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Registration error:", error);
+        throw error;
+      }
       
+      console.log("Registration successful, user data:", data);
       toast.success('Registration successful! Please complete your membership profile to unlock features.');
     } catch (error: any) {
+      console.error("Registration error details:", error);
       toast.error(error.message || 'Failed to register');
       throw error;
     }
@@ -94,6 +112,7 @@ export const useAuthOperations = () => {
       await supabase.auth.signOut();
       toast.success('You have been logged out');
     } catch (error: any) {
+      console.error("Logout error:", error);
       toast.error(error.message || 'Failed to log out');
     }
   };

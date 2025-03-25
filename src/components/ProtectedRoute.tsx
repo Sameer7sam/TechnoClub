@@ -2,8 +2,13 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthUser } from '@/utils/authUtils';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface ProtectedRouteProps {
+  children: (user: AuthUser | null) => React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -15,7 +20,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     }
   }, [isAuthenticated, user]);
 
-  // If isAuthenticated is undefined, we're still loading
+  // If we're still loading, show a loading spinner
   if (isAuthenticated === undefined) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-b from-slate-900 to-slate-800">
@@ -27,14 +32,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  // If we know the user is not authenticated, redirect to login
+  // If user is not authenticated, redirect to login
   if (isAuthenticated === false) {
-    // Redirect to login if not authenticated, preserving the intended destination
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   // User is authenticated, render the protected content
-  return <>{children}</>;
+  return <>{children(user)}</>;
 };
 
 export default ProtectedRoute;

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
@@ -11,30 +12,26 @@ import EnhancedCredits from '@/pages/EnhancedCredits';
 import ClubHeadTools from '@/components/ClubHeadTools';
 import AdminTools from '@/components/AdminTools';
 import ManageClubs from '@/pages/ManageClubs';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-  return children;
-};
+// Move these protected route components outside of the main function component
+// to prevent recreation on each render
+const ProtectedRoute = React.lazy(() => import('@/components/ProtectedRoute'));
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isAdmin } = useAuth();
-  if (!isAuthenticated || !isAdmin()) {
-    return <Navigate to="/profile" />;
-  }
-  return children;
+  return (
+    <ProtectedRoute>
+      {(user) => (user?.role === 'admin' ? children : <Navigate to="/profile" />)}
+    </ProtectedRoute>
+  );
 };
 
 const ClubHeadRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isClubHead } = useAuth();
-  if (!isAuthenticated || !isClubHead()) {
-    return <Navigate to="/profile" />;
-  }
-  return children;
+  return (
+    <ProtectedRoute>
+      {(user) => (user?.role === 'club_head' ? children : <Navigate to="/profile" />)}
+    </ProtectedRoute>
+  );
 };
 
 const router = createBrowserRouter([
@@ -53,17 +50,21 @@ const router = createBrowserRouter([
   {
     path: "/profile",
     element: (
-      <ProtectedRoute>
-        <Profile />
-      </ProtectedRoute>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <ProtectedRoute>
+          {() => <Profile />}
+        </ProtectedRoute>
+      </React.Suspense>
     ),
   },
   {
     path: "/credits",
     element: (
-      <ProtectedRoute>
-        <EnhancedCredits />
-      </ProtectedRoute>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <ProtectedRoute>
+          {() => <EnhancedCredits />}
+        </ProtectedRoute>
+      </React.Suspense>
     ),
   },
   {
@@ -85,9 +86,9 @@ const router = createBrowserRouter([
   {
     path: "/manage-clubs",
     element: (
-      <ProtectedRoute>
+      <AdminRoute>
         <ManageClubs />
-      </ProtectedRoute>
+      </AdminRoute>
     ),
   },
 ]);
@@ -95,7 +96,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <React.StrictMode>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </React.StrictMode>
   );
 }
