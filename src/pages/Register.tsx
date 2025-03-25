@@ -87,6 +87,12 @@ const Register: React.FC = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // Prevent registering with admin email
+      if (values.email === 'admin@gmail.com') {
+        toast.error('This email is reserved for admin use');
+        return;
+      }
+      
       // Combine first and last name for the name field
       const fullName = `${values.firstName} ${values.lastName}`;
       

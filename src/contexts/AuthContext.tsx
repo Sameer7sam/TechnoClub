@@ -2,20 +2,23 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
-import { AuthUser, EventData, profileToAuthUser, userFromMetadata } from '@/utils/authUtils';
+import { AuthUser, EventData, ChapterData, ClubData, profileToAuthUser, userFromMetadata } from '@/utils/authUtils';
 import { useAuthOperations } from '@/hooks/useAuthOperations';
 import { useUserOperations } from '@/hooks/useUserOperations';
 
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, role: 'member' | 'club_head') => Promise<void>;
+  login: (email: string, password: string, role: 'member' | 'club_head' | 'admin') => Promise<void>;
   logout: () => Promise<void>;
   register: (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => Promise<void>;
   giveCredits: (recipientId: string, amount: number, reason: string) => Promise<void>;
   createEvent: (eventData: EventData) => Promise<string>;
   addMemberToEvent: (eventId: string, memberId: string) => Promise<void>;
+  createChapter: (chapterData: ChapterData) => Promise<string>;
+  createClub: (clubData: ClubData) => Promise<string>;
   isClubHead: () => boolean;
+  isAdmin: () => boolean;
   getProfile: () => Promise<void>;
 };
 
@@ -61,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { login, register, logout } = useAuthOperations();
   
   // User operations
-  const { isClubHead, giveCredits, createEvent, addMemberToEvent } = useUserOperations(user, getProfile);
+  const { isClubHead, isAdmin, giveCredits, createEvent, addMemberToEvent, createChapter, createClub } = useUserOperations(user, getProfile);
   
   // Check for existing session and set up auth state listener
   useEffect(() => {
@@ -193,7 +196,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createEvent, 
       addMemberToEvent, 
       isClubHead,
-      getProfile
+      isAdmin,
+      getProfile,
+      createChapter,
+      createClub
     }}>
       {children}
     </AuthContext.Provider>

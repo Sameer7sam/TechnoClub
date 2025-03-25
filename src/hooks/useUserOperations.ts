@@ -1,12 +1,17 @@
 
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthUser, EventData } from '@/utils/authUtils';
+import { AuthUser, EventData, ChapterData, ClubData } from '@/utils/authUtils';
 
 export const useUserOperations = (user: AuthUser | null, getProfile: () => Promise<void>) => {
   // Check if user is club head
   const isClubHead = () => {
     return user?.role === 'club_head';
+  };
+
+  // Check if user is admin
+  const isAdmin = () => {
+    return user?.role === 'admin' || user?.admin === true;
   };
 
   // Club head functions
@@ -90,10 +95,59 @@ export const useUserOperations = (user: AuthUser | null, getProfile: () => Promi
     }
   };
 
+  // Admin functions
+  const createChapter = async (chapterData: ChapterData) => {
+    if (!isAdmin() || !user) {
+      toast.error('Only admins can create chapters');
+      throw new Error('Only admins can create chapters');
+    }
+    
+    try {
+      const { data, error } = await supabase.from('chapters').insert({
+        name: chapterData.name,
+        created_by: user.id
+      }).select('id').single();
+      
+      if (error) throw error;
+      
+      toast.success(`Chapter created successfully!`);
+      return data.id;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create chapter');
+      throw error;
+    }
+  };
+
+  const createClub = async (clubData: ClubData) => {
+    if (!isAdmin() || !user) {
+      toast.error('Only admins can create clubs');
+      throw new Error('Only admins can create clubs');
+    }
+    
+    try {
+      const { data, error } = await supabase.from('clubs').insert({
+        name: clubData.name,
+        chapter_id: clubData.chapterId,
+        created_by: user.id
+      }).select('id').single();
+      
+      if (error) throw error;
+      
+      toast.success(`Club created successfully!`);
+      return data.id;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create club');
+      throw error;
+    }
+  };
+
   return {
     isClubHead,
+    isAdmin,
     giveCredits,
     createEvent,
-    addMemberToEvent
+    addMemberToEvent,
+    createChapter,
+    createClub
   };
 };

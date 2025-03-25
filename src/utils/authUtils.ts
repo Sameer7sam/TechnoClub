@@ -10,7 +10,7 @@ export type AuthUser = {
   name: string;
   email: string;
   studentId: string;
-  role: 'member' | 'club_head';
+  role: 'member' | 'club_head' | 'admin';
   club: string;
   chapter: string;
   totalCredits: number;
@@ -20,6 +20,9 @@ export type AuthUser = {
   city?: string;
   state?: string;
   college?: string;
+  // New fields for the enhanced role system
+  admin?: boolean;
+  memberLevel?: string;
 };
 
 // Define event types
@@ -31,6 +34,16 @@ export type EventData = {
   location: string;
 };
 
+// Define club types
+export type ChapterData = {
+  name: string;
+};
+
+export type ClubData = {
+  name: string;
+  chapterId: string;
+};
+
 // Helper function to convert Supabase profile to our AuthUser type
 export const profileToAuthUser = (profile: Profile): AuthUser => {
   return {
@@ -38,7 +51,7 @@ export const profileToAuthUser = (profile: Profile): AuthUser => {
     name: profile.name,
     email: profile.email,
     studentId: profile.student_id || '',
-    role: profile.role as 'member' | 'club_head',
+    role: profile.role as 'member' | 'club_head' | 'admin',
     club: profile.club || '',
     chapter: profile.chapter || '',
     totalCredits: profile.total_credits,
@@ -47,6 +60,8 @@ export const profileToAuthUser = (profile: Profile): AuthUser => {
     city: profile.city || '',
     state: profile.state || '',
     college: profile.college || '',
+    admin: profile.admin || false,
+    memberLevel: profile.member_level || 'General Member',
   };
 };
 
@@ -57,7 +72,7 @@ export const userFromMetadata = (supabaseUser: User): AuthUser => {
     name: supabaseUser.user_metadata.name || 'User',
     email: supabaseUser.email || '',
     studentId: supabaseUser.user_metadata.studentId || '',
-    role: (supabaseUser.user_metadata.role as 'member' | 'club_head') || 'member',
+    role: (supabaseUser.user_metadata.role as 'member' | 'club_head' | 'admin') || 'member',
     club: supabaseUser.user_metadata.club || '',
     chapter: supabaseUser.user_metadata.chapter || '',
     totalCredits: 0,
@@ -66,5 +81,7 @@ export const userFromMetadata = (supabaseUser: User): AuthUser => {
     city: supabaseUser.user_metadata.city || '',
     state: supabaseUser.user_metadata.state || '',
     college: supabaseUser.user_metadata.college || '',
+    admin: supabaseUser.user_metadata.admin || false,
+    memberLevel: supabaseUser.user_metadata.memberLevel || 'General Member',
   };
 };

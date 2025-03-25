@@ -5,8 +5,13 @@ import { AuthUser } from '@/utils/authUtils';
 
 export const useAuthOperations = () => {
   // Login with email/password
-  const login = async (email: string, password: string, role: 'member' | 'club_head') => {
+  const login = async (email: string, password: string, role: 'member' | 'club_head' | 'admin') => {
     try {
+      // For admin, hardcode the specific login credentials
+      if (role === 'admin' && email !== 'admin@gmail.com') {
+        throw new Error('Invalid admin credentials');
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -15,8 +20,13 @@ export const useAuthOperations = () => {
       if (error) throw error;
       
       if (data.user) {
-        // Don't check profile role here since it's causing errors
-        // We'll use the user metadata role instead
+        // Special case for admin login
+        if (role === 'admin' && email === 'admin@gmail.com') {
+          toast.success(`Welcome back, Admin!`);
+          return;
+        }
+
+        // For non-admin users, check role
         const userRole = data.user.user_metadata.role;
         
         if (userRole && userRole !== role) {
@@ -37,6 +47,11 @@ export const useAuthOperations = () => {
   // Register new user
   const register = async (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => {
     try {
+      // Prevent registering as admin
+      if (userData.role === 'admin') {
+        throw new Error('Admin accounts can only be created by system administrators');
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,

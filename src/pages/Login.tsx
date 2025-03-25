@@ -41,28 +41,35 @@ const formSchema = z.object({
   password: z.string()
     .min(6, { message: "Password must be at least 6 characters" })
     .refine(value => !(/\s/.test(value)), { message: "Password cannot contain whitespace" }),
-  role: z.enum(['member', 'club_head'], {
+  role: z.enum(['member', 'club_head', 'admin'], {
     required_error: "Please select your role",
   }),
 });
 
 const Login: React.FC = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || '/profile';
   const [error, setError] = React.useState<string | null>(null);
 
-  console.log("Login page rendered, authenticated:", isAuthenticated);
-
-  // If already authenticated, redirect to profile
-  useEffect(() => {
-    console.log("Login component mounted, isAuthenticated:", isAuthenticated);
-    if (isAuthenticated) {
-      console.log("User already authenticated, redirecting to:", from);
-      navigate(from, { replace: true });
+  // Determine redirect path based on user role
+  const getRedirectPath = () => {
+    if (user?.role === 'club_head') {
+      return '/profile';
+    } else if (user?.role === 'admin') {
+      return '/profile';
+    } else {
+      return (location.state as any)?.from?.pathname || '/profile';
     }
-  }, [isAuthenticated, navigate, from]);
+  };
+
+  // If already authenticated, redirect to appropriate page
+  useEffect(() => {
+    if (isAuthenticated) {
+      const redirectPath = getRedirectPath();
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuthenticated, navigate, user]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,10 +85,8 @@ const Login: React.FC = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null); // Clear previous errors
     try {
-      console.log("Attempting to login with:", values.email, "as", values.role);
       await login(values.email, values.password, values.role);
-      console.log("Login successful, waiting for auth state to update");
-      // Don't navigate here - we'll let the useEffect handle it
+      // The useEffect will handle redirect after successful login
     } catch (error: any) {
       console.error("Login error:", error);
       setError(error.message || "Login failed. Please check your email, password, and role.");
@@ -174,6 +179,12 @@ const Login: React.FC = () => {
                               <RadioGroupItem value="club_head" id="club_head" />
                               <label htmlFor="club_head" className="cursor-pointer text-gray-200 flex items-center">
                                 <span className="ml-2">Club Head</span>
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2 rounded-md border border-purple-500/20 p-3 bg-space-navy/30">
+                              <RadioGroupItem value="admin" id="admin" />
+                              <label htmlFor="admin" className="cursor-pointer text-gray-200 flex items-center">
+                                <span className="ml-2">Admin</span>
                               </label>
                             </div>
                           </RadioGroup>
