@@ -12,7 +12,11 @@ import EnhancedCredits from '@/pages/EnhancedCredits';
 import ClubHeadTools from '@/components/ClubHeadTools';
 import AdminTools from '@/components/AdminTools';
 import ManageClubs from '@/pages/ManageClubs';
+import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/contexts/AuthContext';
+import Membership from '@/pages/Membership';
+import Collaboration from '@/pages/Collaboration';
+import Reports from '@/pages/Reports';
 
 // Move these protected route components outside of the main function component
 // to prevent recreation on each render
@@ -90,6 +94,40 @@ const router = createBrowserRouter([
         <ManageClubs />
       </AdminRoute>
     ),
+  },
+  {
+    path: "/membership",
+    element: (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <ProtectedRoute>
+          {() => <Membership />}
+        </ProtectedRoute>
+      </React.Suspense>
+    ),
+  },
+  {
+    path: "/collaboration",
+    element: (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <ProtectedRoute>
+          {() => <Collaboration />}
+        </ProtectedRoute>
+      </React.Suspense>
+    ),
+  },
+  {
+    path: "/reports",
+    element: (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <ProtectedRoute>
+          {() => <Reports />}
+        </ProtectedRoute>
+      </React.Suspense>
+    ),
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
