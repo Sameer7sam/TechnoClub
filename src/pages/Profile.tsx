@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import ClubHeadTools from '@/components/ClubHeadTools';
 import AdminTools from '@/components/AdminTools';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,14 +10,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { createDemoAccounts } from '@/utils/demoUsers';
 
 const Profile: React.FC = () => {
   const { user, isClubHead, isAdmin, getProfile } = useAuth();
   const [userClubs, setUserClubs] = useState<any[]>([]);
   const navigate = useNavigate();
-  const [isCreatingAccounts, setIsCreatingAccounts] = useState(false);
 
   // Fetch the latest profile data when the component mounts
   useEffect(() => {
@@ -54,26 +51,6 @@ const Profile: React.FC = () => {
     
     fetchUserClubs();
   }, [user?.id]);
-
-  // Handle creating demo accounts for testing
-  const handleCreateDemoAccounts = async () => {
-    if (!isAdmin()) return;
-    
-    setIsCreatingAccounts(true);
-    try {
-      const result = await createDemoAccounts();
-      if (result) {
-        toast.success('Demo accounts created successfully');
-      } else {
-        toast.error('Failed to create demo accounts');
-      }
-    } catch (error) {
-      console.error('Error creating demo accounts:', error);
-      toast.error('Error creating demo accounts');
-    } finally {
-      setIsCreatingAccounts(false);
-    }
-  };
 
   // Calculate progress to next level
   const calculateProgress = () => {
@@ -158,11 +135,6 @@ const Profile: React.FC = () => {
                           <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 hover:bg-purple-500/30">
                             {user.memberLevel || user.role}
                           </Badge>
-                          {isAdmin() && (
-                            <Badge variant="secondary" className="bg-red-500/20 text-red-300 hover:bg-red-500/30">
-                              Admin
-                            </Badge>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -188,10 +160,12 @@ const Profile: React.FC = () => {
                           <span className="text-gray-400">Role:</span>
                           <span className="text-gray-200">{user.role}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Total Credits:</span>
-                          <span className="text-gray-200">{user.totalCredits}</span>
-                        </div>
+                        {user.role !== 'admin' && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Total Credits:</span>
+                            <span className="text-gray-200">{user.totalCredits}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <span className="text-gray-400">Joined:</span>
                           <span className="text-gray-200">{new Date(user.joinDate).toLocaleDateString()}</span>
@@ -238,26 +212,6 @@ const Profile: React.FC = () => {
                         View Credits
                       </button>
                     </div>
-                    
-                    {/* Admin-only: Create demo accounts button */}
-                    {isAdmin() && (
-                      <div className="pt-4">
-                        <button
-                          onClick={handleCreateDemoAccounts}
-                          disabled={isCreatingAccounts}
-                          className="w-full px-4 py-2 bg-amber-500/20 text-amber-300 rounded-md hover:bg-amber-500/30 transition"
-                        >
-                          {isCreatingAccounts ? (
-                            <span className="flex items-center justify-center">
-                              <div className="animate-spin mr-2 h-4 w-4 border-2 border-amber-300 border-opacity-50 border-t-amber-300 rounded-full"></div>
-                              Creating Demo Accounts...
-                            </span>
-                          ) : (
-                            "Create Demo Accounts"
-                          )}
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
               </CardContent>

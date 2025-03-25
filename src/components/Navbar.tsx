@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Users, Calendar, Award, BarChart, User, Rocket, Star, Building2 } from 'lucide-react';
-import { useAuth } from '@/contexts/auth';
+import { Menu, X, Users, Calendar, Award, BarChart, User, Rocket, Star } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -19,7 +18,7 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,17 +36,6 @@ const Navbar: React.FC = () => {
     { name: 'Credits', path: '/credits', icon: <Award className="h-4 w-4 mr-2" />, auth: true },
     { name: 'Reports', path: '/reports', icon: <BarChart className="h-4 w-4 mr-2" />, auth: true },
   ];
-
-  // Add admin-only links when user is an admin
-  if (isAdmin()) {
-    navLinks.push({
-      name: "Manage Clubs",
-      path: "/manage-clubs",
-      icon: <Building2 className="h-4 w-4 mr-2" />,
-      auth: true,
-      adminOnly: true,
-    });
-  }
 
   const filteredNavLinks = navLinks.filter(link => 
     link.always || (link.auth ? isAuthenticated : !isAuthenticated)
@@ -151,14 +139,6 @@ const Navbar: React.FC = () => {
                       <span>Events</span>
                     </Link>
                   </DropdownMenuItem>
-                  {isAdmin() && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/manage-clubs" className="cursor-pointer">
-                        <Building2 className="mr-2 h-4 w-4" />
-                        <span>Manage Clubs</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="text-red-500" onClick={handleLogout}>
                     <svg

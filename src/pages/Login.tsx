@@ -23,7 +23,7 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LogIn } from 'lucide-react';
@@ -223,31 +223,6 @@ const Login: React.FC = () => {
               </div>
             </CardFooter>
           </Card>
-
-          {/* Sample login credentials */}
-          <div className="mt-8 max-w-md mx-auto bg-purple-900/20 border border-purple-500/20 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-purple-300 mb-2">Sample Login Credentials</h3>
-            <div className="space-y-2 text-sm text-gray-300">
-              <div className="p-2 bg-purple-950/30 rounded">
-                <p className="font-medium">Admin:</p>
-                <p>Email: admin@technoclub.com</p>
-                <p>Password: admin123</p>
-                <p>Role: Admin</p>
-              </div>
-              <div className="p-2 bg-purple-950/30 rounded">
-                <p className="font-medium">Club Head:</p>
-                <p>Email: clubhead@technoclub.com</p>
-                <p>Password: clubhead123</p>
-                <p>Role: Club Head</p>
-              </div>
-              <div className="p-2 bg-purple-950/30 rounded">
-                <p className="font-medium">Member:</p>
-                <p>Email: member@technoclub.com</p>
-                <p>Password: member123</p>
-                <p>Role: Member</p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
       

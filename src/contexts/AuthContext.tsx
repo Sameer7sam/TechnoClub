@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
@@ -9,18 +8,14 @@ import { useUserOperations } from '@/hooks/useUserOperations';
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  session: Session | null;
   login: (email: string, password: string, role: 'member' | 'club_head' | 'admin') => Promise<void>;
   logout: () => Promise<void>;
   register: (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => Promise<void>;
-  giveCredits: (recipientId: string, amount: number, reason: string, eventId?: string) => Promise<void>;
+  giveCredits: (recipientId: string, amount: number, reason: string) => Promise<void>;
   createEvent: (eventData: EventData) => Promise<string>;
   addMemberToEvent: (eventId: string, memberId: string) => Promise<void>;
-  markAttendance: (eventId: string, memberId: string) => Promise<void>;
   createChapter: (chapterData: ChapterData) => Promise<string>;
   createClub: (clubData: ClubData) => Promise<string>;
-  assignClubHead: (userId: string, clubId: string) => Promise<void>;
-  updateMembership: (clubId: string, chapterId: string) => Promise<void>;
   isClubHead: () => boolean;
   isAdmin: () => boolean;
   getProfile: () => Promise<void>;
@@ -65,18 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const { login, register, logout } = useAuthOperations();
   
-  const { 
-    isClubHead, 
-    isAdmin, 
-    giveCredits, 
-    createEvent, 
-    addMemberToEvent, 
-    markAttendance,
-    createChapter, 
-    createClub,
-    assignClubHead,
-    updateMembership
-  } = useUserOperations(user, getProfile);
+  const { isClubHead, isAdmin, giveCredits, createEvent, addMemberToEvent, createChapter, createClub } = useUserOperations(user, getProfile);
   
   useEffect(() => {
     console.log("Setting up auth state listener");
@@ -115,7 +99,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           console.log("No initial session found");
           setUser(null);
-          setSession(null);
         }
         
         console.log("Setting up auth state change listener");
@@ -195,21 +178,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{ 
       user, 
       isAuthenticated: !!user, 
-      session,
       login, 
       logout, 
       register, 
       giveCredits, 
       createEvent, 
-      addMemberToEvent,
-      markAttendance,
+      addMemberToEvent, 
       isClubHead,
       isAdmin,
       getProfile,
       createChapter,
-      createClub,
-      assignClubHead,
-      updateMembership
+      createClub
     }}>
       {children}
     </AuthContext.Provider>
