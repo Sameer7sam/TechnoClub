@@ -53,5 +53,32 @@ export type Tables = {
     city: string | null;
     state: string | null;
     college: string | null;
+    admin: boolean | null;
+    member_level: string | null;
+  };
+  chapters: {
+    id: string;
+    name: string;
+    created_at: string;
+    created_by: string;
+  };
+  clubs: {
+    id: string;
+    name: string;
+    chapter_id: string;
+    created_at: string;
+    created_by: string;
+  };
+  club_members: {
+    id: string;
+    club_id: string;
+    user_id: string;
+    joined_at: string;
+  };
+  member_levels: {
+    id: number;
+    name: string;
+    min_points: number;
+    max_points: number;
   };
 };

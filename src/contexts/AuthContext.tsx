@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
@@ -32,7 +31,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   console.log("AuthProvider initialized");
   
-  // Fetch the latest profile data
   const getProfile = async () => {
     console.log("getProfile called, session:", session?.user?.id);
     if (!session?.user) return;
@@ -60,18 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Auth operations
   const { login, register, logout } = useAuthOperations();
   
-  // User operations
   const { isClubHead, isAdmin, giveCredits, createEvent, addMemberToEvent, createChapter, createClub } = useUserOperations(user, getProfile);
   
-  // Check for existing session and set up auth state listener
   useEffect(() => {
     console.log("Setting up auth state listener");
     let authSubscription: { unsubscribe: () => void } | null = null;
     
-    // First check for existing session
     async function checkExistingSession() {
       try {
         console.log("Checking for existing session");
@@ -107,7 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(null);
         }
         
-        // Only after checking for session, set up the auth listener
         console.log("Setting up auth state change listener");
         authSubscription = supabase.auth.onAuthStateChange(
           async (event, newSession) => {
@@ -142,7 +135,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         ).data.subscription;
         
-        // Important: Set loading to false AFTER all initialization is complete
         setLoading(false);
         setAuthInitialized(true);
       } catch (error) {
@@ -155,14 +147,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkExistingSession();
 
     return () => {
-      // Clean up subscription on unmount
       if (authSubscription) {
         authSubscription.unsubscribe();
       }
     };
   }, []);
 
-  // Log state changes for debugging
   useEffect(() => {
     console.log("Auth state updated:", { 
       authenticated: !!user,
@@ -172,7 +162,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [user, loading, session, authInitialized]);
 
-  // Return a loading state while initializing
   if (loading) {
     console.log("Auth still loading, showing loading spinner");
     return (

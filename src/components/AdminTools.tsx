@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ChapterData, ClubData } from '@/utils/authUtils';
 
 // Schema for adding chapters
 const chapterFormSchema = z.object({
@@ -58,6 +59,9 @@ const clubFormSchema = z.object({
     .min(1, { message: "Please select a chapter" })
 });
 
+type ChapterFormValues = z.infer<typeof chapterFormSchema>;
+type ClubFormValues = z.infer<typeof clubFormSchema>;
+
 const AdminTools: React.FC = () => {
   const { createChapter, createClub } = useAuth();
   const [activeTab, setActiveTab] = useState('chapters');
@@ -65,14 +69,14 @@ const AdminTools: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   // Create forms
-  const chapterForm = useForm<z.infer<typeof chapterFormSchema>>({
+  const chapterForm = useForm<ChapterFormValues>({
     resolver: zodResolver(chapterFormSchema),
     defaultValues: {
       name: ""
     }
   });
   
-  const clubForm = useForm<z.infer<typeof clubFormSchema>>({
+  const clubForm = useForm<ClubFormValues>({
     resolver: zodResolver(clubFormSchema),
     defaultValues: {
       name: "",
@@ -105,9 +109,12 @@ const AdminTools: React.FC = () => {
   }, []);
   
   // Handle form submissions
-  const handleChapterSubmit = async (values: z.infer<typeof chapterFormSchema>) => {
+  const handleChapterSubmit = async (values: ChapterFormValues) => {
     try {
-      await createChapter(values);
+      const chapterData: ChapterData = {
+        name: values.name
+      };
+      await createChapter(chapterData);
       chapterForm.reset();
       fetchChapters(); // Refresh the chapters list
     } catch (error) {
@@ -115,9 +122,13 @@ const AdminTools: React.FC = () => {
     }
   };
   
-  const handleClubSubmit = async (values: z.infer<typeof clubFormSchema>) => {
+  const handleClubSubmit = async (values: ClubFormValues) => {
     try {
-      await createClub(values);
+      const clubData: ClubData = {
+        name: values.name,
+        chapterId: values.chapterId
+      };
+      await createClub(clubData);
       clubForm.reset();
       toast.success('Club created successfully');
     } catch (error) {
