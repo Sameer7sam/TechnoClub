@@ -32,7 +32,7 @@ import {
   RadioGroupItem
 } from "@/components/ui/radio-group";
 
-// Improved form schema with validation
+// Improved form schema with enhanced validation
 const formSchema = z.object({
   firstName: z.string()
     .min(2, { message: "First name must be at least 2 characters" })
@@ -42,9 +42,14 @@ const formSchema = z.object({
     .refine(value => !(/\s/.test(value)), { message: "Last name cannot contain whitespace" }),
   email: z.string()
     .email({ message: "Please enter a valid email address" })
-    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" }),
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" })
+    .refine(value => value.endsWith('@gmail.com'), { message: "Only Gmail addresses are allowed" }),
   password: z.string()
-    .min(6, { message: "Password must be at least 6 characters" })
+    .min(8, { message: "Password must be at least 8 characters" })
+    .refine(value => /[A-Z]/.test(value), { message: "Password must contain at least one uppercase letter" })
+    .refine(value => /[a-z]/.test(value), { message: "Password must contain at least one lowercase letter" })
+    .refine(value => /[0-9]/.test(value), { message: "Password must contain at least one number" })
+    .refine(value => /[^A-Za-z0-9]/.test(value), { message: "Password must contain at least one special character" })
     .refine(value => !(/\s/.test(value)), { message: "Password cannot contain whitespace" }),
   phoneNumber: z.string()
     .min(10, { message: "Phone number must have at least 10 digits" })

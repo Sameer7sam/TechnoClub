@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
@@ -11,6 +12,7 @@ type AuthContextType = {
   login: (email: string, password: string, role: 'member' | 'club_head' | 'admin') => Promise<void>;
   logout: () => Promise<void>;
   register: (userData: Omit<AuthUser, 'id' | 'totalCredits' | 'joinDate'> & { password: string }) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   giveCredits: (recipientId: string, amount: number, reason: string) => Promise<void>;
   createEvent: (eventData: EventData) => Promise<string>;
   addMemberToEvent: (eventId: string, memberId: string) => Promise<void>;
@@ -58,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const { login, register, logout } = useAuthOperations();
+  const { login, register, logout, resetPassword } = useAuthOperations();
   
   const { isClubHead, isAdmin, giveCredits, createEvent, addMemberToEvent, createChapter, createClub } = useUserOperations(user, getProfile);
   
@@ -181,6 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login, 
       logout, 
       register, 
+      resetPassword,
       giveCredits, 
       createEvent, 
       addMemberToEvent, 

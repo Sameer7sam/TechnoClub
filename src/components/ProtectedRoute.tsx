@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
@@ -10,10 +11,21 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     if (isAuthenticated === false) {
       console.log('User not authenticated, redirecting to login');
+      toast.error('Please log in to access this page', {
+        id: 'auth-required',
+        duration: 3000
+      });
     } else if (isAuthenticated === true) {
       console.log('User authenticated, accessing protected route', user?.name);
+      // Only show welcome toast when coming from login page
+      if (location.state && (location.state as any).from === '/login') {
+        toast.success(`Welcome, ${user?.name}!`, {
+          id: 'auth-success',
+          duration: 3000
+        });
+      }
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, location]);
 
   // If isAuthenticated is undefined, we're still loading
   if (isAuthenticated === undefined) {

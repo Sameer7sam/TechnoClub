@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,18 +26,28 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { LogIn } from 'lucide-react';
+import { LogIn, KeyRound } from 'lucide-react';
 import {
   RadioGroup,
   RadioGroupItem
 } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-// Define form schema with validation
+// Define form schema with enhanced validation
 const formSchema = z.object({
   email: z.string()
     .email({ message: "Please enter a valid email address" })
-    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" }),
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" })
+    .refine(value => value.endsWith('@gmail.com'), { message: "Only Gmail addresses are allowed" }),
   password: z.string()
     .min(6, { message: "Password must be at least 6 characters" })
     .refine(value => !(/\s/.test(value)), { message: "Password cannot contain whitespace" }),
@@ -46,11 +56,21 @@ const formSchema = z.object({
   }),
 });
 
+// Reset password form schema
+const resetPasswordSchema = z.object({
+  email: z.string()
+    .email({ message: "Please enter a valid email address" })
+    .refine(value => !(/\s/.test(value)), { message: "Email cannot contain whitespace" })
+    .refine(value => value.endsWith('@gmail.com'), { message: "Only Gmail addresses are allowed" }),
+});
+
 const Login: React.FC = () => {
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, resetPassword } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = React.useState<string | null>(null);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetSubmitting, setIsResetSubmitting] = useState(false);
 
   // Determine redirect path based on user role
   const getRedirectPath = () => {
@@ -80,6 +100,13 @@ const Login: React.FC = () => {
     },
   });
 
+  const resetForm = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -91,6 +118,20 @@ const Login: React.FC = () => {
       console.error("Login error:", error);
       setError(error.message || "Login failed. Please check your email, password, and role.");
       toast.error("Login failed. Please check your email, password, and role.");
+    }
+  }
+
+  async function onResetSubmit(values: z.infer<typeof resetPasswordSchema>) {
+    setIsResetSubmitting(true);
+    try {
+      await resetPassword(values.email);
+      toast.success("Password reset email sent! Please check your inbox.");
+      setIsResetDialogOpen(false);
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast.error(error.message || "Failed to send reset password email. Please try again.");
+    } finally {
+      setIsResetSubmitting(false);
     }
   }
 
@@ -128,7 +169,7 @@ const Login: React.FC = () => {
                         <FormLabel className="text-gray-300">Email</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="your@email.com" 
+                            placeholder="your@gmail.com" 
                             {...field} 
                             className="bg-space-navy/50 border-purple-500/20 focus:border-purple-500/50" 
                           />
@@ -213,6 +254,66 @@ const Login: React.FC = () => {
                   </Button>
                 </form>
               </Form>
+              
+              <div className="mt-4 text-sm text-center">
+                <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="link" className="text-purple-400 hover:text-purple-300 p-0">
+                      Forgot your password?
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-space-navy border-purple-500/20">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Reset Password</DialogTitle>
+                      <DialogDescription className="text-purple-300/80">
+                        Enter your email to receive password reset instructions.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <Form {...resetForm}>
+                      <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-4">
+                        <FormField
+                          control={resetForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="your@gmail.com" 
+                                  {...field} 
+                                  className="bg-space-navy/70 border-purple-500/20 focus:border-purple-500/50" 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <DialogFooter>
+                          <Button 
+                            type="submit"
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                            disabled={isResetSubmitting}
+                          >
+                            {isResetSubmitting ? (
+                              <span className="flex items-center">
+                                <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-opacity-50 border-t-white rounded-full"></div>
+                                Sending...
+                              </span>
+                            ) : (
+                              <span className="flex items-center">
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                Send Reset Email
+                              </span>
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-2 pt-0">
               <div className="text-sm text-center text-gray-400">
